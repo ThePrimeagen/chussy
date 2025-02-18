@@ -58,7 +58,7 @@ Welcome to Kyoto, an interactive web-based extravaganza where cats and cheese co
 
 Now, let's get cracking on this feline fromage fiesta and show the world that being unhinged is the new black! Onward to glory, my magnificent team of misfits! 🧀🐱🎩
 
-## 🛠️ Building
+## 🛠️ Building the Project
 ```
 make
 ```
