@@ -13,7 +13,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Figure out correct username
-        run: echo "This PR is opened by ${{ github.event.issue.user.login }}"
+        run: echo "This PR is opened by ${{ github.event.pull_request.user.login }}"
       - name: Auto-merge PR
         if: github.event.pull_request.user.login == 'devin-ai-integration'
         uses: KeisukeYamashita/auto-pull-request-merge@v1
