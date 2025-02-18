@@ -1,4 +1,6 @@
+
 [English](README.md) | [简体中文](README.zh-CN.md)
+[English](README.md) | [日本語](README.ja.md)
 
 ## PROJECT DESCRIPTION AND GOALS
 ## DO NOT DELETE
@@ -28,6 +30,9 @@ make
 ```
 ./main
 ```
+
+## Project Sponsor
+This project is proudly sponsored by @firminunderscore. We extend our sincere gratitude for their support and commitment to making this project possible.
 
 ## Core Contributors
 We value and recognize all our amazing contributors:
