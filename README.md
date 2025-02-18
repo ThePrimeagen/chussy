@@ -30,5 +30,6 @@ make
 ## Core Contributors
 We value and recognize all our amazing contributors:
 - ThePrimeagen
+- teej_dv (Exclusive Pair Programmer)
 - DougDoug
 - app/devin-ai-integration
