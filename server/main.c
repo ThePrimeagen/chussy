@@ -49,9 +49,14 @@ void handle_client(int client_fd) {
         return;
     }
 
-    // Very basic parsing (only supports GET)
+    // Parse the request line
     char method[16], url[256], protocol[16];
-    sscanf(buffer, "%15s %255s %15s", method, url, protocol);
+    if (sscanf(buffer, "%15s %255s %15s", method, url, protocol) != 3) {
+        char response[] = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n";
+        send(client_fd, response, sizeof(response) - 1, 0);
+        close(client_fd);
+        return;
+    }
 
     if (strcmp(method, "GET") != 0) {
         // Only GET is supported.
@@ -76,10 +81,13 @@ void handle_client(int client_fd) {
 
     // Construct the file path. (Assumes assets folder is in the same directory as the server.)
     char path[512];
-    snprintf(path, sizeof(path), "./assets%s", url);
+    // Remove leading slash if present and ensure we look in assets directory
+    const char* file_path = (*url == '/') ? url + 1 : url;
+    snprintf(path, sizeof(path), "assets/%s", file_path);
 
     // Open the file.
     FILE *fp = fopen(path, "rb");
+    printf("Attempting to open file: %s\n", path);
     if (!fp) {
         // File not found.
         char response[] = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
