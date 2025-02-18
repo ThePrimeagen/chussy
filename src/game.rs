@@ -44,7 +44,7 @@ impl Snake {
         };
 
         // Check self-collision
-        if self.body.iter().any(|pos| pos.x == new_head.x && pos.y == new_head.y) {
+        if self.body.iter().skip(1).any(|pos| pos.x == new_head.x && pos.y == new_head.y) {
             return false;
         }
 
@@ -138,9 +138,25 @@ mod tests {
         let mut snake = Snake::new(Position { x: 5, y: 5 });
         assert_eq!(snake.body.len(), 1);
         
+        // Test right movement
         snake.move_forward((10, 10));
         assert_eq!(snake.body.len(), 1);
         assert_eq!(snake.body.front().unwrap().x, 6);
+        
+        // Test down movement
+        snake.set_direction(Direction::Down);
+        snake.move_forward((10, 10));
+        assert_eq!(snake.body.front().unwrap().y, 6);
+        
+        // Test left movement
+        snake.set_direction(Direction::Left);
+        snake.move_forward((10, 10));
+        assert_eq!(snake.body.front().unwrap().x, 5);
+        
+        // Test up movement
+        snake.set_direction(Direction::Up);
+        snake.move_forward((10, 10));
+        assert_eq!(snake.body.front().unwrap().y, 5);
     }
 
     #[test]
@@ -149,18 +165,64 @@ mod tests {
         snake.grow();
         snake.move_forward((10, 10));
         assert_eq!(snake.body.len(), 2);
+        
+        // Test multiple growth
+        snake.grow();
+        snake.move_forward((10, 10));
+        assert_eq!(snake.body.len(), 3);
     }
 
     #[test]
     fn test_snake_collision() {
         let mut snake = Snake::new(Position { x: 5, y: 5 });
-        snake.grow();
-        snake.move_forward((10, 10));
+        
+        // Create a snake long enough to collide with itself
+        for _ in 0..3 {
+            snake.grow();
+            snake.move_forward((10, 10));
+        }
+        
+        // Make the snake turn into itself
         snake.set_direction(Direction::Down);
         snake.move_forward((10, 10));
         snake.set_direction(Direction::Left);
         snake.move_forward((10, 10));
         snake.set_direction(Direction::Up);
+        
+        // Should collide with itself
         assert!(!snake.move_forward((10, 10)));
+    }
+
+    #[test]
+    fn test_game_state() {
+        let mut game = GameState::new((10, 10));
+        assert_eq!(game.score, 0);
+        assert_eq!(game.primeagems, 0);
+        assert!(!game.game_over);
+
+        // Force food position for testing
+        game.food = Position { x: 6, y: 5 };
+        let start_pos = game.snake.body.front().unwrap().clone();
+        assert_eq!(start_pos.x, 5); // Snake starts at (5,5)
+        assert_eq!(start_pos.y, 5);
+
+        // Move snake to food
+        game.update((10, 10)); // Move right to (6,5)
+        assert_eq!(game.score, 10);
+        assert_eq!(game.primeagems, 1);
+        
+        // Verify new food spawned
+        assert!(game.food.x != 6 || game.food.y != 5);
+    }
+
+    #[test]
+    fn test_invalid_direction_change() {
+        let mut snake = Snake::new(Position { x: 5, y: 5 });
+        snake.grow();
+        snake.move_forward((10, 10));
+
+        // Cannot turn 180 degrees
+        snake.set_direction(Direction::Left);
+        assert_eq!(snake.direction, Direction::Right);
     }
 }

@@ -51,6 +51,9 @@ fn with_tx(tx: broadcast::Sender<String>) -> impl Filter<Extract = (broadcast::S
 async fn handle_ws_client(ws: warp::ws::WebSocket, players: Players, tx: broadcast::Sender<String>) {
     let (ws_sender, mut ws_receiver) = ws.split();
     let player_id = uuid::Uuid::new_v4().to_string();
+    let player_id_clone = player_id.clone();
+    let players_clone = players.clone();
+    let tx_clone = tx.clone();
     
     // Initialize player's game state
     {
@@ -63,11 +66,11 @@ async fn handle_ws_client(ws: warp::ws::WebSocket, players: Players, tx: broadca
         let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(100));
         loop {
             interval.tick().await;
-            let mut players = players.lock().await;
-            if let Some(state) = players.get_mut(&player_id) {
+            let mut players = players_clone.lock().await;
+            if let Some(state) = players.get_mut(&player_id_clone) {
                 state.update((30, 30));
                 if let Ok(state_json) = serde_json::to_string(&state) {
-                    let _ = tx.send(state_json);
+                    let _ = tx_clone.send(state_json);
                 }
             }
         }
