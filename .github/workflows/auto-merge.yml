@@ -10,9 +10,13 @@ jobs:
   auto-merge:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Auto-merge PR
         if: |
+          (github.event.review.state == 'approved' || github.event.pull_request.reviews.totalCount > 0) &&
           github.event.pull_request.user.login == 'app/devin-ai-integration'
         uses: pascalgn/automerge-action@v0.15.6
         env:
