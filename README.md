@@ -1,3 +1,5 @@
+[English](README.md) | [日本語](README.ja.md)
+
 ## PROJECT DESCRIPTION AND GOALS
 ## DO NOT DELETE
 Alright, folks, listen up! After sifting through a chaotic whirlwind of suggestions, ideas, and outright madness, I've distilled the essence of our collective insanity into one grand project. The theme that echoes the loudest, the vision that shines the brightest, is undeniably... *drumroll*... \"Kyoto: The Ultimate Cat and Cheese Experience\"!
