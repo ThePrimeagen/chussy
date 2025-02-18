@@ -3,8 +3,6 @@ name: Auto Merge PR
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-  pull_request_review:
-    types: [submitted]
 
 jobs:
   auto-merge:
