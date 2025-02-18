@@ -7,9 +7,33 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/stat.h>
+#include <errno.h>
+#include <time.h>
 
 #define PORT 8080
 #define BUFFER_SIZE 4096
+#define LOG_FILE "server.log"
+
+// Function to log messages
+void log_message(const char* message, int error) {
+    FILE* log_fp = fopen(LOG_FILE, "a");
+    if (log_fp == NULL) {
+        perror("Error opening log file");
+        return;
+    }
+
+    time_t now = time(NULL);
+    char* time_str = ctime(&now);
+    time_str[strlen(time_str) - 1] = '\0'; // Remove newline
+
+    if (error) {
+        fprintf(log_fp, "[%s] ERROR: %s - %s\n", time_str, message, strerror(errno));
+    } else {
+        fprintf(log_fp, "[%s] INFO: %s\n", time_str, message);
+    }
+
+    fclose(log_fp);
+}
 
 // Return a content type based on the file extension.
 const char* get_content_type(const char* path) {
@@ -33,19 +57,28 @@ void handle_client(int client_fd) {
     // Read the HTTP request.
     int received = recv(client_fd, buffer, BUFFER_SIZE - 1, 0);
     if (received < 0) {
-        perror("recv failed");
+        log_message("recv failed", 1);
         close(client_fd);
         return;
     }
 
     // Very basic parsing (only supports GET)
     char method[16], url[256], protocol[16];
-    sscanf(buffer, "%15s %255s %15s", method, url, protocol);
+    if (sscanf(buffer, "%15s %255s %15s", method, url, protocol) != 3) {
+        log_message("Failed to parse HTTP request", 1);
+        close(client_fd);
+        return;
+    }
+
+    char log_buf[512];
+    snprintf(log_buf, sizeof(log_buf), "Received request: %s %s %s", method, url, protocol);
+    log_message(log_buf, 0);
 
     if (strcmp(method, "GET") != 0) {
         // Only GET is supported.
         char response[] = "HTTP/1.1 501 Not Implemented\r\nContent-Length: 0\r\n\r\n";
         send(client_fd, response, sizeof(response) - 1, 0);
+        log_message("Unsupported method", 0);
         close(client_fd);
         return;
     }
@@ -54,6 +87,7 @@ void handle_client(int client_fd) {
     if (strstr(url, "..")) {
         char response[] = "HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\n\r\n";
         send(client_fd, response, sizeof(response) - 1, 0);
+        log_message("Directory traversal attempt blocked", 0);
         close(client_fd);
         return;
     }
@@ -73,6 +107,8 @@ void handle_client(int client_fd) {
         // File not found.
         char response[] = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
         send(client_fd, response, sizeof(response) - 1, 0);
+        snprintf(log_buf, sizeof(log_buf), "File not found: %s", path);
+        log_message(log_buf, 0);
         close(client_fd);
         return;
     }
@@ -91,29 +127,44 @@ void handle_client(int client_fd) {
         "Content-Type: %s\r\n"
         "\r\n",
         file_size, content_type);
-    send(client_fd, header, header_length, 0);
+    
+    if (send(client_fd, header, header_length, 0) < 0) {
+        log_message("Failed to send response header", 1);
+        fclose(fp);
+        close(client_fd);
+        return;
+    }
 
     // Send the file content in chunks.
     size_t n;
     while ((n = fread(buffer, 1, BUFFER_SIZE, fp)) > 0) {
-        send(client_fd, buffer, n, 0);
+        if (send(client_fd, buffer, n, 0) < 0) {
+            log_message("Failed to send file content", 1);
+            break;
+        }
+    }
+
+    if (ferror(fp)) {
+        log_message("Error reading file", 1);
     }
 
     fclose(fp);
     close(client_fd);
+    snprintf(log_buf, sizeof(log_buf), "Successfully served file: %s", path);
+    log_message(log_buf, 0);
 }
 
 int main() {
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
-        perror("socket failed");
+        log_message("socket failed", 1);
         exit(EXIT_FAILURE);
     }
 
     // Allow reuse of the address.
     int opt = 1;
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        perror("setsockopt failed");
+        log_message("setsockopt failed", 1);
         exit(EXIT_FAILURE);
     }
 
@@ -123,16 +174,19 @@ int main() {
     address.sin_port = htons(PORT);
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-        perror("bind failed");
+        log_message("bind failed", 1);
         exit(EXIT_FAILURE);
     }
 
     if (listen(server_fd, 10) < 0) {
-        perror("listen failed");
+        log_message("listen failed", 1);
         exit(EXIT_FAILURE);
     }
 
-    printf("Server listening on port %d...\n", PORT);
+    char log_buf[64];
+    snprintf(log_buf, sizeof(log_buf), "Server listening on port %d", PORT);
+    log_message(log_buf, 0);
+    printf("%s\n", log_buf);
 
     // Main loop to accept and handle incoming connections.
     while (1) {
@@ -140,7 +194,7 @@ int main() {
         socklen_t client_len = sizeof(client_addr);
         int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
         if (client_fd < 0) {
-            perror("accept failed");
+            log_message("accept failed", 1);
             continue;
         }
         // For simplicity, we're handling one client at a time.
@@ -150,4 +204,3 @@ int main() {
     close(server_fd);
     return 0;
 }
-
