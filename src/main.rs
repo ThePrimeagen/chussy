@@ -1,27 +1,21 @@
+mod game;
+
 use warp::Filter;
 use tokio::sync::broadcast;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use rand::Rng;
+use futures::{FutureExt, StreamExt};
+use game::{GameState, Direction};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Player {
-    id: String,
-    score: u32,
-    primeagems: u32,
-    snake: Vec<(i32, i32)>,
-    direction: String,
+type Players = Arc<Mutex<HashMap<String, GameState>>>;
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ClientMessage {
+    action: String,
+    direction: Option<Direction>,
 }
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct GameState {
-    players: HashMap<String, Player>,
-    food: (i32, i32),
-}
-
-type Players = Arc<Mutex<HashMap<String, Player>>>;
 
 #[tokio::main]
 async fn main() {
@@ -55,6 +49,56 @@ fn with_tx(tx: broadcast::Sender<String>) -> impl Filter<Extract = (broadcast::S
 }
 
 async fn handle_ws_client(ws: warp::ws::WebSocket, players: Players, tx: broadcast::Sender<String>) {
-    // WebSocket connection handler implementation
-    println!("New WebSocket client connected");
+    let (ws_sender, mut ws_receiver) = ws.split();
+    let player_id = uuid::Uuid::new_v4().to_string();
+    
+    // Initialize player's game state
+    {
+        let mut players = players.lock().await;
+        players.insert(player_id.clone(), GameState::new((30, 30)));
+    }
+
+    // Game loop
+    let game_loop = tokio::spawn(async move {
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(100));
+        loop {
+            interval.tick().await;
+            let mut players = players.lock().await;
+            if let Some(state) = players.get_mut(&player_id) {
+                state.update((30, 30));
+                if let Ok(state_json) = serde_json::to_string(&state) {
+                    let _ = tx.send(state_json);
+                }
+            }
+        }
+    });
+
+    // Handle incoming messages
+    while let Some(result) = ws_receiver.next().await {
+        match result {
+            Ok(msg) => {
+                if let Ok(text) = msg.to_str() {
+                    if let Ok(client_msg) = serde_json::from_str::<ClientMessage>(text) {
+                        let mut players = players.lock().await;
+                        if let Some(state) = players.get_mut(&player_id) {
+                            match client_msg.action.as_str() {
+                                "direction" => {
+                                    if let Some(direction) = client_msg.direction {
+                                        state.snake.set_direction(direction);
+                                    }
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                }
+            }
+            Err(_) => break,
+        }
+    }
+
+    // Cleanup
+    game_loop.abort();
+    let mut players = players.lock().await;
+    players.remove(&player_id);
 }
