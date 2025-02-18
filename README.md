@@ -26,3 +26,6 @@ make
 ```
 ./main
 ```
+
+## Core Contributors
+- DougDoug
