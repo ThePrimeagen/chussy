@@ -1,0 +1,8 @@
+return {
+    GRID_SIZE = 30,
+    CELL_SIZE = 1,
+    MOVE_INTERVAL = 0.1,
+    INITIAL_LENGTH = 3,
+    POINTS_PER_FOOD = 10,
+    PRIMEAGEMS_PER_FOOD = 1
+}
