@@ -13,8 +13,8 @@ jobs:
     steps:
       - name: Auto-merge PR
         if: |
-          github.event.review.state == 'approved' ||
-          github.event.pull_request.user.login == 'devin-bot'
+          github.event.review.state == 'approved' &&
+          github.event.pull_request.user.login == 'app/devin-ai-integration'
         uses: pascalgn/automerge-action@v0.15.6
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
