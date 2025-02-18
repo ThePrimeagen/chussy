@@ -16,3 +16,13 @@ Welcome to Kyoto, an interactive web-based extravaganza where cats and cheese co
 - **Fake Moustache Logo:** The pièce de résistance, tying the theme together with flair.
 
 Now, let's get cracking on this feline fromage fiesta and show the world that being unhinged is the new black! Onward to glory, my magnificent team of misfits! 🧀🐱🎩
+
+## Building
+```
+make
+```
+
+## Running
+```
+./main
+```
