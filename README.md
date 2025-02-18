@@ -1,3 +1,5 @@
+
+[English](README.md) | [简体中文](README.zh-CN.md)
 [English](README.md) | [日本語](README.ja.md)
 
 ## PROJECT DESCRIPTION AND GOALS
