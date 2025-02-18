@@ -38,15 +38,26 @@ void log_message(const char* message, int error) {
 // Return a content type based on the file extension.
 const char* get_content_type(const char* path) {
     const char *ext = strrchr(path, '.');
-    if (!ext) return "text/plain";
+    if (!ext) return "application/octet-stream";
     if (strcmp(ext, ".html") == 0)
         return "text/html";
     else if (strcmp(ext, ".css") == 0)
         return "text/css";
     else if (strcmp(ext, ".js") == 0)
         return "application/javascript";
-    // Add more types as needed.
-    return "text/plain";
+    else if (strcmp(ext, ".jpg") == 0 || strcmp(ext, ".jpeg") == 0)
+        return "image/jpeg";
+    else if (strcmp(ext, ".png") == 0)
+        return "image/png";
+    else if (strcmp(ext, ".gif") == 0)
+        return "image/gif";
+    else if (strcmp(ext, ".webp") == 0)
+        return "image/webp";
+    else if (strcmp(ext, ".svg") == 0)
+        return "image/svg+xml";
+    else if (strcmp(ext, ".ico") == 0)
+        return "image/x-icon";
+    return "application/octet-stream";
 }
 
 // Handles a client connection.
@@ -62,9 +73,10 @@ void handle_client(int client_fd) {
         return;
     }
 
-    // Very basic parsing (only supports GET)
+    // Parse the request line
     char method[16], url[256], protocol[16];
     if (sscanf(buffer, "%15s %255s %15s", method, url, protocol) != 3) {
+<<<<<<< HEAD
         log_message("Failed to parse HTTP request", 1);
         close(client_fd);
         return;
@@ -73,6 +85,13 @@ void handle_client(int client_fd) {
     char log_buf[512];
     snprintf(log_buf, sizeof(log_buf), "Received request: %s %s %s", method, url, protocol);
     log_message(log_buf, 0);
+=======
+        char response[] = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n";
+        send(client_fd, response, sizeof(response) - 1, 0);
+        close(client_fd);
+        return;
+    }
+>>>>>>> 8d1f314dc6c6c7cf64c7b212aca6bbce22d57220
 
     if (strcmp(method, "GET") != 0) {
         // Only GET is supported.
@@ -99,10 +118,13 @@ void handle_client(int client_fd) {
 
     // Construct the file path. (Assumes assets folder is in the same directory as the server.)
     char path[512];
-    snprintf(path, sizeof(path), "./assets%s", url);
+    // Remove leading slash if present and ensure we look in assets directory
+    const char* file_path = (*url == '/') ? url + 1 : url;
+    snprintf(path, sizeof(path), "assets/%s", file_path);
 
     // Open the file.
     FILE *fp = fopen(path, "rb");
+    printf("Attempting to open file: %s\n", path);
     if (!fp) {
         // File not found.
         char response[] = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
