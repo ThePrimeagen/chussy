@@ -81,9 +81,9 @@ void handle_client(int client_fd) {
 
     // Construct the file path. (Assumes assets folder is in the same directory as the server.)
     char path[512];
-    // Remove leading slash if present
+    // Remove leading slash if present and ensure we look in assets directory
     const char* file_path = (*url == '/') ? url + 1 : url;
-    snprintf(path, sizeof(path), "%s", file_path);
+    snprintf(path, sizeof(path), "assets/%s", file_path);
 
     // Open the file.
     FILE *fp = fopen(path, "rb");
