@@ -14,5 +14,5 @@ jobs:
     steps:
       - name: Auto-merge PR
 
-        if: github.event.pull_request.user.login == 'devin-ai-integration'
+        if: github.event.pull_request.user.login == 'devin-ai-integration[bot]'
         uses: KeisukeYamashita/auto-pull-request-merge@v1
