@@ -76,6 +76,7 @@ Now, let's get cracking on this feline fromage fiesta and show the world that be
 ## 🌐 BEHOLD OUR FELINE GALLERY DIVINE!
 VISIT OUR CATS IN THEIR ONLINE SHRINE:
 [HTTPS://THEPRIMEAGEN.GITHUB.IO/CHUSSY/](https://theprimeagen.github.io/chussy/)
+WHERE WHISKERS AND CHEESE INTERTWINE!
 
 ## 🛠️ BUILDING WITH MIGHT AND MAIN
 ```
