@@ -73,22 +73,26 @@ ADDS PANACHE WITH SUCH FLAIR!
 
 Now, let's get cracking on this feline fromage fiesta and show the world that being unhinged is the new black! Onward to glory, my magnificent team of misfits! 🧀🐱🎩
 
-## 🛠️ Building the Project
+## 🛠️ BUILDING WITH MIGHT AND MAIN
 ```
-make
-```
-
-## 🚀 Running
-```
-./main
+MAKE YOUR WAY TO GLORY'S REIGN,
+TYPE "MAKE" TO START THE GAME AGAIN!
 ```
 
-## 💝 Project Sponsor
-This project is proudly sponsored by @firminunderscore. We extend our sincere gratitude for their support and commitment to making this project possible.
+## 🚀 RUNNING WITH GLEE
+```
+./main IS ALL YOU NEED TO SEE!
+```
 
-## 👥 Core Contributors
-We value and recognize all our amazing contributors:
-- ThePrimeagen
-- teej_dv (Exclusive Pair Programmer)
-- DougDoug
-- app/devin-ai-integration
+## 💝 OUR GRACIOUS SPONSOR'S DECREE
+HARK! @FIRMINUNDERSCORE LEADS THE WAY,
+SUPPORTING US THROUGH NIGHT AND DAY!
+THEIR FAITH IN US SHINES OH SO BRIGHT,
+MAKING THIS PROJECT PURE DELIGHT!
+
+## 👥 CHAMPIONS OF OUR NOBLE QUEST
+BEHOLD THESE HEROES, THEY'RE THE BEST:
+- THEPRIMEAGEN, OUR GUIDING LIGHT
+- TEEJ_DV, WHO CODES ALL NIGHT
+- DOUGDOUG, WITH WISDOM TRUE
+- APP/DEVIN-AI, MAKING DREAMS COME TRUE
