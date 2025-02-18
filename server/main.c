@@ -14,15 +14,26 @@
 // Return a content type based on the file extension.
 const char* get_content_type(const char* path) {
     const char *ext = strrchr(path, '.');
-    if (!ext) return "text/plain";
+    if (!ext) return "application/octet-stream";
     if (strcmp(ext, ".html") == 0)
         return "text/html";
     else if (strcmp(ext, ".css") == 0)
         return "text/css";
     else if (strcmp(ext, ".js") == 0)
         return "application/javascript";
-    // Add more types as needed.
-    return "text/plain";
+    else if (strcmp(ext, ".jpg") == 0 || strcmp(ext, ".jpeg") == 0)
+        return "image/jpeg";
+    else if (strcmp(ext, ".png") == 0)
+        return "image/png";
+    else if (strcmp(ext, ".gif") == 0)
+        return "image/gif";
+    else if (strcmp(ext, ".webp") == 0)
+        return "image/webp";
+    else if (strcmp(ext, ".svg") == 0)
+        return "image/svg+xml";
+    else if (strcmp(ext, ".ico") == 0)
+        return "image/x-icon";
+    return "application/octet-stream";
 }
 
 // Handles a client connection.
