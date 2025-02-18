@@ -1,4 +1,4 @@
-name: Auto Merge PRs
+name: Devin.ai Auto Merge
 
 on:
   pull_request:
@@ -22,8 +22,8 @@ on:
 jobs:
   automerge:
     runs-on: ubuntu-latest
-    # Only allow Devin AI to trigger auto-merge
-    if: github.event.pull_request.user.login == 'devin-ai'
+    # Only allow Devin.ai GitHub App to trigger auto-merge
+    if: github.event.pull_request.user.login == 'devin-ai-integration[bot]'
     permissions:
       contents: write
       pull-requests: write
