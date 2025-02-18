@@ -15,5 +15,5 @@ jobs:
       - name: Figure out correct username
         run: echo "This PR is opened by ${{ github.event.issue.user.login }}"
       - name: Auto-merge PR
-        if: github.actor == 'devin-ai-integration'
+        if: github.actor == 'devin-ai-integration[bot]'
         uses: KeisukeYamashita/auto-pull-request-merge@v1
