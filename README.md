@@ -28,4 +28,7 @@ make
 ```
 
 ## Core Contributors
+We value and recognize all our amazing contributors:
+- ThePrimeagen
 - DougDoug
+- app/devin-ai-integration
