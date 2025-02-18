@@ -1,6 +1,16 @@
 
-[English](README.md) | [简体中文](README.zh-CN.md)
-[English](README.md) | [日本語](README.ja.md)
+ONCE UPON A TIME there was a lovely princess.
+But she had an enchantment upon her of a fearful sort,
+which could only be broken by love's first kiss.
+She was locked away in a castle guarded by a terrible fire-breathing dragon.
+Many brave knights had attempted to free her from this dreadful prison,
+but none prevailed.
+She waited in the dragon's keep in the highest room of the tallest tower
+for her true love and true love's first kiss.
+Like that's ever gonna happen.
+
+[ENGLISH](README.md) | [简体中文](README.zh-CN.md)
+[ENGLISH](README.md) | [日本語](README.ja.md)
 
 ```
                     ____________________
@@ -26,7 +36,7 @@
                     COBOL Visionary
 ```
 
-## 🎯 PROJECT DESCRIPTION AND GOALS
+## 🎯 BEHOLD OUR GRAND DESIGN!
 ## ⚠️ DO NOT DELETE
 
 *An Ode to COBOL and Grace Hopper*
@@ -47,8 +57,13 @@ Here's the plan:
 
 **Project Kyoto: The Ultimate Cat and Cheese Experience**
 
-*Description:*
-Welcome to Kyoto, an interactive web-based extravaganza where cats and cheese collide in a whimsical dance of delight! This website will feature a gallery of charming cat images, updated every 10 seconds, each with a delightful cheese fact written in the iconic Comic Sans. And because we like to keep things spicy, a fake moustache will serve as our quirky logo, adding a dash of panache to the whole affair.
+*HEAR YE, HEAR YE!*
+WELCOME TO KYOTO'S GRAND DISPLAY,
+WHERE CATS AND CHEESE MAKE THEIR BALLET!
+EVERY TEN SECONDS, A NEW SIGHT TO SEE,
+WITH COMIC SANS FACTS ABOUT FINE BRIE!
+A MOUSTACHE LOGO, OH SO RARE,
+ADDS PANACHE WITH SUCH FLAIR!
 
 *Features:* ✨
 - **🐱 Cat Image Carousel:** A new adorable cat image every 10 seconds.
