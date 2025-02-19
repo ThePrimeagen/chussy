@@ -3,14 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyoto Snake Game</title>
+    <title>Kyoto Cheesy Chussy Extravaganza Snake Game</title>
+    <script>
+        // Check theme preference
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        light: {
+                            bg: '#ffffe0', // Light yellow for better visibility
+                            text: '#4a0072' // Deep purple for contrast
+                        },
+                        dark: {
+                            bg: '#2d0059', // Deep purple background
+                            text: '#ffffa0' // Bright yellow text
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Extra large text for better visibility */
+        .game-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        /* High contrast borders */
+        .game-border {
+            border-width: 4px;
+            border-style: solid;
+            border-color: #4a0072;
+        }
+        .dark .game-border {
+            border-color: #ffffa0;
+        }
+    </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
-    <script defer src="auto_refresh.js"></script>
-    <script src="ml_button.js"></script>
+    <audio id="vineBoomSound" src="sounds/vine-boom.mp3" preload="auto"></audio>
     <script src="js/cheese-loader.js"></script>
     <script src="js/snake3d.js"></script>
+    <script defer src="auto_refresh.js"></script>
+    <script defer src="ml_button.js"></script>
+    <script>
+        // Game constants
+        const SPEED_BOOST_COST = 100;
+        const DOUBLE_POINTS_COST = 200;
+        
+        // Initialize game
+        async function initGame() {
+            try {
+                // Get canvas element
+                const canvas = document.getElementById('gameCanvas');
+                
+                // Initialize 3D game
+                window.game = new Snake3D(canvas);
+                await window.game.init();
+                
+                // Setup store functionality
+                setupStore();
+                
+                // Start game
+                updateUI();
+            } catch (error) {
+                console.error('Failed to initialize game:', error);
+                const overlay = document.getElementById('overlay');
+                const message = document.createElement('div');
+                message.textContent = 'Failed to load game. Please refresh the page.';
+                message.classList.add('text-red-500', 'text-xl', 'font-bold');
+                overlay.querySelector('.text-center').prepend(message);
+                overlay.classList.remove('hidden');
+            }
+        }
+        
+        // Setup store functionality
+        function setupStore() {
+            const speedBoostBtn = document.getElementById('speedBoostBtn');
+            const doublePointsBtn = document.getElementById('doublePointsBtn');
+            
+            function updateStoreButtons() {
+                speedBoostBtn.disabled = window.game.gems < SPEED_BOOST_COST || window.game.speedBoostActive;
+                doublePointsBtn.disabled = window.game.gems < DOUBLE_POINTS_COST || window.game.pointMultiplier > 1;
+            }
+            
+            speedBoostBtn.addEventListener('click', () => {
+                if (window.game.gems >= SPEED_BOOST_COST && !window.game.speedBoostActive) {
+                    window.game.gems -= SPEED_BOOST_COST;
+                    window.game.speedBoostActive = true;
+                    window.game.speed = Math.max(0.05, window.game.speed - 0.03);
+                    updateStoreButtons();
+                }
+            });
+            
+            doublePointsBtn.addEventListener('click', () => {
+                if (window.game.gems >= DOUBLE_POINTS_COST && window.game.pointMultiplier === 1) {
+                    window.game.gems -= DOUBLE_POINTS_COST;
+                    window.game.pointMultiplier = 2;
+                    updateStoreButtons();
+                }
+            });
+        }
+        
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initGame);
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -49,7 +152,13 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-200">
+    <div class="fixed top-4 right-4 z-50">
+        <button id="themeToggle" class="bg-purple-500 px-6 py-3 rounded-lg hover:bg-purple-600 text-white text-2xl font-bold animate-bounce shadow-lg transform hover:scale-110 transition-all duration-200">
+            <span class="dark:hidden">🌙 NIGHT MODE FOR TIRED EYES 👀</span>
+            <span class="hidden dark:inline">☀️ DAY MODE FOR BRAVE SOULS 🦁</span>
+        </button>
+    </div>
     <div class="container mx-auto px-4 py-8">
         <!-- Ad Banner -->
         <a href="https://terminal.shop" target="_blank" class="block w-full mb-8 bg-purple-600 hover:bg-purple-700 transition-colors duration-200 rounded-lg shadow-lg overflow-hidden">
@@ -62,8 +171,8 @@
         <div class="flex justify-center gap-8">
             <!-- 3D Game Canvas -->
             <div class="relative">
-                <canvas id="gameCanvas" width="600" height="600" class="border-4 border-purple-500 rounded-lg bg-[#87CEEB]"></canvas>
-                <div class="absolute top-4 left-4 text-black font-mono text-sm">
+                <canvas id="gameCanvas" width="600" height="600" class="game-border rounded-lg bg-light-bg dark:bg-dark-bg"></canvas>
+                <div class="absolute top-4 left-4 game-text text-light-text dark:text-dark-text font-mono">
                     Controls: WASD/Arrow Keys - Move | Q/E - Roll | R/F - Up/Down
                 </div>
                 <div id="overlay" class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden flex items-center justify-center">
@@ -76,21 +185,21 @@
 
             <!-- Game Stats -->
             <div class="w-64">
-                <div class="bg-gray-800 p-4 rounded-lg mb-4">
-                    <h2 class="text-xl font-bold mb-2">Stats</h2>
-                    <p>Score: <span id="score">0</span></p>
-                    <p>Level: <span id="level">1</span></p>
-                    <p>Primeagems: <span id="gems">0</span></p>
+                <div class="game-border p-4 rounded-lg mb-4 bg-light-bg dark:bg-dark-bg">
+                    <h2 class="text-xl font-bold mb-2 game-text">Stats</h2>
+                    <p class="game-text">Score: <span id="score">0</span></p>
+                    <p class="game-text">Level: <span id="level">1</span></p>
+                    <p class="game-text">Primeagems: <span id="gems">0</span></p>
                 </div>
 
                 <!-- Store -->
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <h2 class="text-xl font-bold mb-2">Store</h2>
+                <div class="game-border p-4 rounded-lg bg-light-bg dark:bg-dark-bg">
+                    <h2 class="text-xl font-bold mb-2 game-text">Store</h2>
                     <div class="space-y-2">
-                        <button id="speedBoostBtn" class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="speedBoostBtn" class="w-full bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed game-text text-white transform hover:scale-105 transition-transform">
                             Speed Boost (100 💎)
                         </button>
-                        <button id="doublePointsBtn" class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="doublePointsBtn" class="w-full bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed game-text text-white transform hover:scale-105 transition-transform">
                             Double Points (200 💎)
                         </button>
                     </div>
@@ -99,16 +208,16 @@
         </div>
 
         <!-- Leaderboard -->
-        <div class="mt-8 bg-gray-800 p-4 rounded-lg">
-            <h2 class="text-xl font-bold mb-4">Top Players</h2>
-            <div id="leaderboard" class="space-y-2">
-                <div class="flex justify-between items-center p-2 bg-gray-700 rounded">
-                    <span class="font-bold">👑 THEPRIMEAGEN</span>
-                    <span class="text-purple-400">SUPREME OVERLORD</span>
+        <div class="mt-8 game-border p-4 rounded-lg bg-light-bg dark:bg-dark-bg">
+            <h2 class="text-xl font-bold mb-4 game-text">Top Players</h2>
+            <div id="leaderboard" class="space-y-2 game-text">
+                <div class="flex justify-between items-center p-2 bg-purple-500 dark:bg-purple-700 rounded transform hover:scale-105 transition-transform">
+                    <span class="font-bold text-white">👑 THEPRIMEAGEN</span>
+                    <span class="text-yellow-300 dark:text-yellow-200">SUPREME OVERLORD</span>
                 </div>
-                <div class="flex justify-between items-center p-2 bg-gray-700 rounded">
-                    <span class="font-bold">🛡️ TANN2019</span>
-                    <span class="text-purple-400">MASTER MAINTAINER</span>
+                <div class="flex justify-between items-center p-2 bg-purple-500 dark:bg-purple-700 rounded transform hover:scale-105 transition-transform">
+                    <span class="font-bold text-white">🛡️ TANN2019</span>
+                    <span class="text-yellow-300 dark:text-yellow-200">MASTER MAINTAINER</span>
                 </div>
                 <div class="flex justify-between items-center p-2 bg-gray-700 rounded">
                     <span class="font-bold">⚔️ RICDEH96</span>
@@ -136,7 +245,7 @@
                 </div>
             </div>
             <!-- ThePrimeagen ASCII Art -->
-            <div class="mt-4 text-center text-xs font-mono text-purple-400">
+            <div class="mt-4 text-center text-lg font-mono text-purple-600 dark:text-purple-400 game-text transform hover:scale-105 transition-transform">
                 <div class="whitespace-pre">
   +-----------------------------------------+
   |              ThePrimeagen               |
@@ -155,11 +264,23 @@
         const SPEED_BOOST_COST = 100;
         const DOUBLE_POINTS_COST = 200;
         
-        // Get canvas element
-        const canvas = document.getElementById('gameCanvas');
-        
-        // Initialize 3D game
-        const game = new Snake3D(canvas);
+        // Initialize game
+        async function initGame() {
+            try {
+                // Get canvas element
+                const canvas = document.getElementById('gameCanvas');
+                
+                // Initialize 3D game
+                game = new Snake3D(canvas);
+            await game.init().catch(error => {
+            console.error('Failed to initialize game:', error);
+            const overlay = document.getElementById('overlay');
+            const message = document.createElement('div');
+            message.textContent = 'Failed to load game. Please refresh the page.';
+            message.classList.add('text-red-500', 'text-xl', 'font-bold');
+            overlay.querySelector('.text-center').prepend(message);
+            overlay.classList.remove('hidden');
+        });
         
         // Store functionality
         const speedBoostBtn = document.getElementById('speedBoostBtn');
@@ -216,8 +337,27 @@
             overlay.classList.add('hidden');
         });
 
-        // Start game
-        updateUI();
+        // Theme toggle functionality
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+                // Start game
+                updateUI();
+            } catch (error) {
+                console.error('Failed to initialize game:', error);
+                const overlay = document.getElementById('overlay');
+                const message = document.createElement('div');
+                message.textContent = 'Failed to load game. Please refresh the page.';
+                message.classList.add('text-red-500', 'text-xl', 'font-bold');
+                overlay.querySelector('.text-center').prepend(message);
+                overlay.classList.remove('hidden');
+            }
+        }
+        
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
 </html>

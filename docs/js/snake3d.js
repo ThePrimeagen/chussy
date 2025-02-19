@@ -1,21 +1,24 @@
 // 3D Snake Game Implementation with Hyperbolic Geometry
 class Snake3D {
     constructor(canvas) {
+        if (!canvas) {
+            throw new Error('Canvas element is required');
+        }
+        if (!window.THREE) {
+            throw new Error('THREE.js is required');
+        }
+        if (!window.THREE.SVGLoader) {
+            throw new Error('THREE.SVGLoader is required');
+        }
+        
+        // Initialize scene and renderer
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         
-        // Setup lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 5, 5);
-        this.scene.add(ambientLight, directionalLight);
-        
-        // Setup hyperbolic grid
-        const gridGeometry = new THREE.TorusGeometry(10, 0.1, 16, 100);
-        const gridMaterial = new THREE.MeshBasicMaterial({ color: 0x444444 });
-        this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
-        this.scene.add(this.hyperbolicGrid);
+        // Initialize death counter for autoplay
+        this.deathCount = 0;
+        this.autoplayEnabled = false;
         
         // Initialize properties
         this.segments = [];
@@ -43,13 +46,22 @@ class Snake3D {
         // Camera position in hyperbolic space
         this.camera.position.set(0, 15, 15);
         this.camera.lookAt(0, 0, 0);
-        
-        // Initialize game
-        this.init().catch(console.error);
     }
     
     async init() {
         try {
+            // Setup lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 5, 5);
+            this.scene.add(ambientLight, directionalLight);
+            
+            // Setup hyperbolic grid
+            const gridGeometry = new THREE.TorusGeometry(10, 0.1, 16, 100);
+            const gridMaterial = new THREE.MeshBasicMaterial({ color: 0x444444 });
+            this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
+            this.scene.add(this.hyperbolicGrid);
+
             // Load textures
             this.headMaterial = new THREE.MeshPhongMaterial({ 
                 color: 0xffffff,
@@ -84,6 +96,7 @@ class Snake3D {
             this.animate();
         } catch (error) {
             console.error('Failed to initialize game:', error);
+            throw error; // Re-throw to notify game.html
         }
     }
     
@@ -169,10 +182,12 @@ class Snake3D {
 
     // Check for collisions in hyperbolic space
     checkCollision(position) {
+        if (!position || !this.food) return null;
+        
         const hyperbolicPos = this.applyHyperbolicTransform(position);
         
         // Check food collision
-        if (this.food && this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
+        if (this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
             this.score += 10 * this.pointMultiplier;
             this.gems++;
             
@@ -196,9 +211,15 @@ class Snake3D {
     }
     
     animate() {
+        if (!this.scene || !this.renderer || !this.camera) return;
         requestAnimationFrame(() => this.animate());
         this.update();
-        this.renderer.render(this.scene, this.camera);
+        try {
+            this.renderer.render(this.scene, this.camera);
+        } catch (error) {
+            console.error('Failed to render scene:', error);
+            document.getElementById('overlay').classList.remove('hidden');
+        }
     }
     
     // Apply hyperbolic transformation
@@ -213,14 +234,33 @@ class Snake3D {
     }
 
     update() {
-        // Update snake position
-        this.position.add(this.direction.multiplyScalar(this.speed));
+        if (!this.segments || !this.scene) return;
+        
+        // Handle autoplay if enabled
+        if (this.autoplayEnabled) {
+            this.handleBotMove();
+        }
+        
+        // Create a copy of direction for position update to avoid modifying the original
+        const moveDir = this.direction.clone().multiplyScalar(this.speed);
+        this.position.add(moveDir);
         const hyperbolicPos = this.applyHyperbolicTransform(this.position);
         
         // Check collisions
         const collision = this.checkCollision(this.position);
         if (collision === 'self') {
-            document.getElementById('vineBoomSound').play();
+            this.deathCount++;
+            if (this.deathCount >= 5) {
+                this.autoplayEnabled = true;
+            }
+            try {
+                const sound = document.getElementById('vineBoomSound');
+                if (sound) {
+                    sound.play().catch(console.error); // Handle autoplay restrictions
+                }
+            } catch (error) {
+                console.error('Failed to play sound:', error);
+            }
             document.getElementById('overlay').classList.remove('hidden');
             return;
         }
@@ -253,24 +293,30 @@ class Snake3D {
     }
     
     handleInput(key) {
+        if (!key || this.autoplayEnabled) return;
+        
         const dir = new THREE.Vector3();
         dir.copy(this.direction);
         
         switch(key) {
             case 'arrowup':
             case 'w':
+            case 'k':
                 dir.z = -1;
                 break;
             case 'arrowdown':
             case 's':
+            case 'j':
                 dir.z = 1;
                 break;
             case 'arrowleft':
             case 'a':
+            case 'h':
                 dir.x = -1;
                 break;
             case 'arrowright':
             case 'd':
+            case 'l':
                 dir.x = 1;
                 break;
             case 'r': // Move up
@@ -280,17 +326,46 @@ class Snake3D {
                 dir.y = -1;
                 break;
             case 'q': // Roll left
-                this.yRotation -= Math.PI / 2;
+                this.yRotation = (this.yRotation - Math.PI / 2) % (Math.PI * 2);
                 break;
             case 'e': // Roll right
-                this.yRotation += Math.PI / 2;
+                this.yRotation = (this.yRotation + Math.PI / 2) % (Math.PI * 2);
                 break;
+            default:
+                return; // Ignore unknown keys
         }
         
         // Apply rotation
         dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yRotation);
         this.direction.copy(dir.normalize());
     }
+
+    handleBotMove() {
+        if (!this.food) return;
+        
+        const foodPos = this.food.position;
+        const snakePos = this.position;
+        
+        // Calculate direction to food
+        const dirToFood = new THREE.Vector3()
+            .subVectors(foodPos, snakePos)
+            .normalize();
+        
+        // Avoid self-collision
+        for (const segment of this.segments) {
+            const dirToSegment = new THREE.Vector3()
+                .subVectors(segment.position, snakePos)
+                .normalize();
+            if (dirToSegment.dot(dirToFood) > 0.9) {
+                // Too close to segment, turn perpendicular
+                dirToFood.cross(new THREE.Vector3(0, 1, 0));
+            }
+        }
+        
+        // Update direction based on food position
+        this.direction.copy(dirToFood);
+    }
+
 
     reset() {
         // Reset position and rotation
@@ -318,4 +393,9 @@ class Snake3D {
         // Spawn new food
         this.spawnFood();
     }
+}
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Snake3D;
 }
