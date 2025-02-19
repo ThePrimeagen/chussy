@@ -308,13 +308,22 @@ describe('Snake3D', () => {
     });
 
     test('collision detection in hyperbolic space', () => {
+        // Setup snake segments
         const headPos = new MockVector3(0, 0, 0);
         const bodyPos = new MockVector3(1, 0, 0);
-        game.segments = [
-            { position: headPos },
-            { position: bodyPos }
+        const segments = [
+            new THREE.Mesh(game.snakeGeometry, game.headMaterial),
+            new THREE.Mesh(game.snakeGeometry, game.bodyMaterial)
         ];
-        game.food = { position: new MockVector3(1, 0, 0) };  // Same position as bodyPos
+        segments[0].position.copy(headPos);
+        segments[1].position.copy(bodyPos);
+        game.segments = segments;
+        
+        // Setup food at different position
+        game.food = new THREE.Mesh(game.snakeGeometry, game.foodMaterial);
+        game.food.position.set(2, 0, 0);
+        
+        // Test collision with body segment
         const result = game.checkCollision(bodyPos);
         expect(result).toBe('self');
     });
