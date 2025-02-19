@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="auto_refresh.js"></script>
     <script src="ml_button.js"></script>
+    <script src="js/auto_play.js"></script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -94,6 +95,7 @@
         let nextDirection = 'right';
         let lastDirectionChange = Date.now();
         let directionQueue = [];
+        let snakeBot = new SnakeBot({ snake, food, direction, directionQueue, canvas });
         let score = 0;
         let level = 1;
         let gems = 0;
