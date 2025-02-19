@@ -9,11 +9,17 @@ class SnakeBot {
 
     activate() {
         this.isActive = true;
+        if (this.indicator) {
+            this.indicator.style.opacity = '1';
+        }
         this.update();
     }
 
     deactivate() {
         this.isActive = false;
+        if (this.indicator) {
+            this.indicator.style.opacity = '0';
+        }
     }
 
     update() {

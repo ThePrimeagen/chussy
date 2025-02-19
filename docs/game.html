@@ -322,8 +322,29 @@
             directionQueue,
             canvas,
             gameLoop,
-            gameSpeed
+            gameSpeed,
+            getRandomPosition // Pass the helper function
         });
+
+        // Add auto-play indicator
+        const autoPlayIndicator = document.createElement('div');
+        autoPlayIndicator.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(147, 51, 234, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 9999;
+        `;
+        autoPlayIndicator.textContent = '🤖 Auto-Play Active';
+        document.body.appendChild(autoPlayIndicator);
+        window.snakeBot.indicator = autoPlayIndicator;
 
         // Update bot state when game state changes
         const updateBotState = () => {
