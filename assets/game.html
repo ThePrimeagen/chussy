@@ -76,12 +76,16 @@
         let snake = [{x: 10, y: 10}];
         let food = {x: 15, y: 15};
         let direction = 'right';
+        let nextDirection = 'right';
+        let lastDirectionChange = Date.now();
+        let directionQueue = [];
         let score = 0;
         let level = 1;
         let gems = 0;
         let gameSpeed = 100;
         let gameLoop;
         let isGameOver = false;
+        const DIRECTION_CHANGE_DELAY = 50; // Minimum 50ms between direction changes
 
         // Get DOM elements
         const canvas = document.getElementById('gameCanvas');
@@ -118,6 +122,13 @@
         // Game step
         function gameStep() {
             if (isGameOver) return;
+
+            // Process direction queue
+            if (directionQueue.length > 0 && Date.now() - lastDirectionChange >= DIRECTION_CHANGE_DELAY) {
+                nextDirection = directionQueue.shift();
+                direction = nextDirection;
+                lastDirectionChange = Date.now();
+            }
 
             // Move snake
             const head = {...snake[0]};
@@ -197,13 +208,13 @@
         document.addEventListener('keydown', (e) => {
             let newDirection;
             switch(e.key) {
-                case 'ArrowUp': if (direction !== 'down') newDirection = 'up'; break;
-                case 'ArrowDown': if (direction !== 'up') newDirection = 'down'; break;
-                case 'ArrowLeft': if (direction !== 'right') newDirection = 'left'; break;
-                case 'ArrowRight': if (direction !== 'left') newDirection = 'right'; break;
+                case 'ArrowUp': if (direction !== 'down' && nextDirection !== 'down') newDirection = 'up'; break;
+                case 'ArrowDown': if (direction !== 'up' && nextDirection !== 'up') newDirection = 'down'; break;
+                case 'ArrowLeft': if (direction !== 'right' && nextDirection !== 'right') newDirection = 'left'; break;
+                case 'ArrowRight': if (direction !== 'left' && nextDirection !== 'left') newDirection = 'right'; break;
             }
-            if (newDirection) {
-                direction = newDirection;
+            if (newDirection && directionQueue.length < 2) { // Limit queue size to prevent too many buffered moves
+                directionQueue.push(newDirection);
                 socket.send(JSON.stringify({
                     action: 'direction',
                     direction: newDirection
