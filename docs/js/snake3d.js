@@ -17,13 +17,31 @@ class Snake3D {
         this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
         this.scene.add(this.hyperbolicGrid);
         
-        // Initialize snake segments with ASCII characters
+        // Initialize snake segments with cheese textures
         this.segments = [];
         this.snakeGeometry = new THREE.BoxGeometry(1, 1, 0.2);
-        this.snakeMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0x9333ea,
+        this.cheeseLoader = new CheeseTextureLoader();
+        
+        // Create materials for different segments
+        this.headMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0xffffff,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.9,
+            map: await this.cheeseLoader.loadTexture('swiss')
+        });
+        
+        this.bodyMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9,
+            map: await this.cheeseLoader.loadTexture('cheddar')
+        });
+        
+        this.tailMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9,
+            map: await this.cheeseLoader.loadTexture('gouda')
         });
         
         // Camera position in hyperbolic space
@@ -36,30 +54,26 @@ class Snake3D {
         this.speed = 0.1;
         this.currentRotation = 0;
         
-        // Create text textures for snake segments
-        this.headTexture = this.createTextTexture('D');
-        this.bodyTexture = this.createTextTexture('=');
-        this.tailTexture = this.createTextTexture('8');
+        // Initialize food with special cheese texture
+        this.foodMaterial = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9,
+            map: await this.cheeseLoader.loadTexture('cheezus')
+        });
         
         // Start animation loop
         this.animate();
     }
     
-    // Create texture with ASCII character
-    createTextTexture(char) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'white';
-        ctx.font = '48px monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(char, 32, 32);
+    // Create a new segment with the appropriate cheese texture
+    createSegment(type = 'body') {
+        const material = type === 'head' ? this.headMaterial.clone() :
+                        type === 'tail' ? this.tailMaterial.clone() :
+                        this.bodyMaterial.clone();
         
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.needsUpdate = true;
-        return texture;
+        const segment = new THREE.Mesh(this.snakeGeometry, material);
+        return segment;
     }
     
     animate() {
