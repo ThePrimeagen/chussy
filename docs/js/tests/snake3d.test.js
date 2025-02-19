@@ -1,5 +1,7 @@
-const THREE = {
-    Scene: jest.fn(),
+// Mock browser globals
+global.window = {
+    THREE: {
+        Scene: jest.fn(),
     PerspectiveCamera: jest.fn(),
     WebGLRenderer: jest.fn(),
     Vector3: jest.fn(() => ({
@@ -23,8 +25,14 @@ const CheeseTextureLoader = jest.fn(() => ({
     loadTexture: jest.fn().mockResolvedValue({})
 }));
 
-global.THREE = THREE;
+global.THREE = window.THREE;
 global.CheeseTextureLoader = CheeseTextureLoader;
+global.document = {
+    getElementById: jest.fn().mockReturnValue({
+        play: jest.fn().mockResolvedValue(undefined),
+        classList: { remove: jest.fn() }
+    })
+};
 
 const Snake3D = require('../snake3d.js');
 

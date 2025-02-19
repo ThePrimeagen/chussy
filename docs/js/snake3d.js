@@ -354,3 +354,8 @@ class Snake3D {
         this.spawnFood();
     }
 }
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Snake3D;
+}
