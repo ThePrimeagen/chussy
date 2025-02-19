@@ -94,6 +94,8 @@ pub struct GameState {
     pub game_over: bool,
     pub ml_training: bool,
     pub bot_moves: Vec<Direction>,
+    pub death_count: u32,
+    pub autoplay_enabled: bool,
 }
 
 impl GameState {
@@ -113,12 +115,67 @@ impl GameState {
             game_over: false,
             ml_training: false,
             bot_moves: Vec::new(),
+            death_count: 0,
+            autoplay_enabled: false,
+        }
+    }
+
+    fn calculate_bot_move(&self, bounds: (i32, i32)) -> Direction {
+        let head = self.snake.body.front().unwrap();
+        let food = &self.food;
+        
+        // Simple pathfinding: Try to align with food on one axis first
+        if head.x != food.x {
+            if (food.x > head.x && self.snake.direction != Direction::Left) ||
+               (food.x < head.x && self.snake.direction != Direction::Right) {
+                return if food.x > head.x { Direction::Right } else { Direction::Left };
+            }
+        }
+        if head.y != food.y {
+            if (food.y > head.y && self.snake.direction != Direction::Up) ||
+               (food.y < head.y && self.snake.direction != Direction::Down) {
+                return if food.y > head.y { Direction::Down } else { Direction::Up };
+            }
+        }
+        
+        // If we can't move directly toward food, try to avoid walls and self
+        let mut available_directions = vec![
+            Direction::Up,
+            Direction::Down,
+            Direction::Left,
+            Direction::Right,
+        ];
+        available_directions.retain(|&dir| {
+            let next_pos = match dir {
+                Direction::Up => Position { x: head.x, y: (head.y - 1).rem_euclid(bounds.1) },
+                Direction::Down => Position { x: head.x, y: (head.y + 1).rem_euclid(bounds.1) },
+                Direction::Left => Position { x: (head.x - 1).rem_euclid(bounds.0), y: head.y },
+                Direction::Right => Position { x: (head.x + 1).rem_euclid(bounds.0), y: head.y },
+            };
+            !self.snake.body.iter().any(|pos| pos.x == next_pos.x && pos.y == next_pos.y)
+        });
+        
+        if !available_directions.is_empty() {
+            available_directions[0]
+        } else {
+            self.snake.direction // Last resort: keep current direction
         }
     }
 
     pub fn update(&mut self, bounds: (i32, i32)) {
         if self.game_over {
+            self.death_count += 1;
+            if self.death_count >= 5 {
+                self.autoplay_enabled = true;
+            }
+            self.game_over = false;
+            self.snake = Snake::new(Position { x: bounds.0 / 2, y: bounds.1 / 2 });
             return;
+        }
+
+        if self.autoplay_enabled {
+            let bot_move = self.calculate_bot_move(bounds);
+            self.snake.set_direction(bot_move);
         }
 
         if !self.snake.move_forward(bounds) {
