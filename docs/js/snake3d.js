@@ -49,6 +49,13 @@ class Snake3D {
         this.camera.lookAt(0, 0, 0);
         
         // Game state
+        this.score = 0;
+        this.gems = 0;
+        this.level = 1;
+        this.speedBoostActive = false;
+        this.pointMultiplier = 1;
+        
+        // Movement state
         this.direction = new THREE.Vector3(1, 0, 0);
         this.position = new THREE.Vector3(0, 0, 0);
         this.speed = 0.1;

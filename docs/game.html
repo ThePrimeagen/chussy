@@ -97,9 +97,39 @@
         let pointMultiplier = 1;
         let speedBoostActive = false;
         
+        // Game constants
+        const SPEED_BOOST_COST = 100;
+        const DOUBLE_POINTS_COST = 200;
+        
         // Initialize 3D game
         const canvas = document.getElementById('gameCanvas');
         const game = new Snake3D(canvas);
+        
+        // Store functionality
+        const speedBoostBtn = document.getElementById('speedBoostBtn');
+        const doublePointsBtn = document.getElementById('doublePointsBtn');
+        
+        function updateStoreButtons() {
+            speedBoostBtn.disabled = game.gems < SPEED_BOOST_COST || game.speedBoostActive;
+            doublePointsBtn.disabled = game.gems < DOUBLE_POINTS_COST || game.pointMultiplier > 1;
+        }
+        
+        speedBoostBtn.addEventListener('click', () => {
+            if (game.gems >= SPEED_BOOST_COST && !game.speedBoostActive) {
+                game.gems -= SPEED_BOOST_COST;
+                game.speedBoostActive = true;
+                game.speed = Math.max(0.05, game.speed - 0.03);
+                updateStoreButtons();
+            }
+        });
+        
+        doublePointsBtn.addEventListener('click', () => {
+            if (game.gems >= DOUBLE_POINTS_COST && game.pointMultiplier === 1) {
+                game.gems -= DOUBLE_POINTS_COST;
+                game.pointMultiplier = 2;
+                updateStoreButtons();
+            }
+        });
         
         // Socket for ML button compatibility
         const socket = { send: () => {} };
