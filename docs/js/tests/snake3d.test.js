@@ -130,9 +130,16 @@ global.document = {
         classList: { remove: jest.fn(), add: jest.fn() }
     }),
     createElement: jest.fn().mockReturnValue({
-        classList: { remove: jest.fn(), add: jest.fn() }
+        classList: { remove: jest.fn(), add: jest.fn() },
+        getContext: jest.fn().mockReturnValue({
+            fillStyle: '',
+            fill: jest.fn()
+        })
     })
 };
+
+// Set test environment
+process.env.NODE_ENV = 'test';
 
 const Snake3D = require('../snake3d.js');
 
@@ -189,13 +196,11 @@ describe('Snake3D', () => {
     });
 
     test('handleInput updates direction correctly', () => {
-        game.direction = new THREE.Vector3();
-        game.direction.z = 0;
+        game.direction = new THREE.Vector3(0, 0, 0);
         game.handleInput('w');
         expect(game.direction.z).toBe(-1);
         
-        game.direction = new THREE.Vector3();
-        game.direction.z = 0;
+        game.direction = new THREE.Vector3(0, 0, 0);
         game.handleInput('s');
         expect(game.direction.z).toBe(1);
     });
@@ -279,12 +284,14 @@ describe('Snake3D', () => {
     });
 
     test('collision detection in hyperbolic space', () => {
+        const headPos = new THREE.Vector3(0, 0, 0);
+        const bodyPos = new THREE.Vector3(1, 0, 0);
         game.segments = [
-            { position: new MockVector3(0, 0, 0) },
-            { position: new MockVector3(1, 0, 0) }
+            { position: headPos },
+            { position: bodyPos }
         ];
-        game.food = { position: new MockVector3(2, 0, 0) };
-        const result = game.checkCollision(new MockVector3(1, 0, 0));
+        game.food = { position: new THREE.Vector3(2, 0, 0) };
+        const result = game.checkCollision(bodyPos);
         expect(result).toBe('self');
     });
 
