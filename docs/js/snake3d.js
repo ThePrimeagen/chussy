@@ -17,36 +17,15 @@ class Snake3D {
         this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
         this.scene.add(this.hyperbolicGrid);
         
-        // Initialize snake segments with cheese textures
+        // Initialize properties
         this.segments = [];
         this.snakeGeometry = new THREE.BoxGeometry(1, 1, 0.2);
         this.cheeseLoader = new CheeseTextureLoader();
-        
-        // Create materials for different segments
-        this.headMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9,
-            map: await this.cheeseLoader.loadTexture('swiss')
-        });
-        
-        this.bodyMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9,
-            map: await this.cheeseLoader.loadTexture('cheddar')
-        });
-        
-        this.tailMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9,
-            map: await this.cheeseLoader.loadTexture('gouda')
-        });
-        
-        // Camera position in hyperbolic space
-        this.camera.position.set(0, 15, 15);
-        this.camera.lookAt(0, 0, 0);
+        this.headMaterial = null;
+        this.bodyMaterial = null;
+        this.tailMaterial = null;
+        this.foodMaterial = null;
+        this.food = null;
         
         // Game state
         this.score = 0;
@@ -59,18 +38,53 @@ class Snake3D {
         this.direction = new THREE.Vector3(1, 0, 0);
         this.position = new THREE.Vector3(0, 0, 0);
         this.speed = 0.1;
-        this.currentRotation = 0;
+        this.yRotation = 0;
         
-        // Initialize food with special cheese texture
-        this.foodMaterial = new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9,
-            map: await this.cheeseLoader.loadTexture('cheezus')
-        });
+        // Camera position in hyperbolic space
+        this.camera.position.set(0, 15, 15);
+        this.camera.lookAt(0, 0, 0);
         
-        // Start animation loop
-        this.animate();
+        // Initialize game
+        this.init().catch(console.error);
+    }
+    
+    async init() {
+        try {
+            // Load textures
+            this.headMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                map: await this.cheeseLoader.loadTexture('swiss')
+            });
+            
+            this.bodyMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                map: await this.cheeseLoader.loadTexture('cheddar')
+            });
+            
+            this.tailMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                map: await this.cheeseLoader.loadTexture('gouda')
+            });
+            
+            this.foodMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                map: await this.cheeseLoader.loadTexture('cheezus')
+            });
+            
+            // Start game
+            this.spawnFood();
+            this.animate();
+        } catch (error) {
+            console.error('Failed to initialize game:', error);
+        }
     }
     
     // Create a new segment with the appropriate cheese texture and rotation
@@ -198,21 +212,6 @@ class Snake3D {
         );
     }
 
-    // Update snake rotation based on direction
-    updateRotation() {
-        let targetRotation = 0;
-        if (this.direction.z < 0) { // UP
-            targetRotation = -Math.PI / 2;
-        } else if (this.direction.z > 0) { // DOWN
-            targetRotation = Math.PI / 2;
-        } else if (this.direction.x < 0) { // LEFT
-            targetRotation = Math.PI;
-        }
-        
-        // Smoothly interpolate rotation
-        this.currentRotation += (targetRotation - this.currentRotation) * 0.2;
-    }
-
     update() {
         // Update snake position
         this.position.add(this.direction.multiplyScalar(this.speed));
@@ -254,27 +253,69 @@ class Snake3D {
     }
     
     handleInput(key) {
+        const dir = new THREE.Vector3();
+        dir.copy(this.direction);
+        
         switch(key) {
             case 'arrowup':
             case 'w':
-            case 'k':
-                this.direction.set(0, 0, -1);
+                dir.z = -1;
                 break;
             case 'arrowdown':
             case 's':
-            case 'j':
-                this.direction.set(0, 0, 1);
+                dir.z = 1;
                 break;
             case 'arrowleft':
             case 'a':
-            case 'h':
-                this.direction.set(-1, 0, 0);
+                dir.x = -1;
                 break;
             case 'arrowright':
             case 'd':
-            case 'l':
-                this.direction.set(1, 0, 0);
+                dir.x = 1;
+                break;
+            case 'r': // Move up
+                dir.y = 1;
+                break;
+            case 'f': // Move down
+                dir.y = -1;
+                break;
+            case 'q': // Roll left
+                this.yRotation -= Math.PI / 2;
+                break;
+            case 'e': // Roll right
+                this.yRotation += Math.PI / 2;
                 break;
         }
+        
+        // Apply rotation
+        dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yRotation);
+        this.direction.copy(dir.normalize());
+    }
+
+    reset() {
+        // Reset position and rotation
+        this.position.set(0, 0, 0);
+        this.direction.set(1, 0, 0);
+        this.yRotation = 0;
+        
+        // Reset game state
+        this.score = 0;
+        this.gems = 0;
+        this.level = 1;
+        this.speedBoostActive = false;
+        this.pointMultiplier = 1;
+        
+        // Clear segments
+        this.segments.forEach(segment => this.scene.remove(segment));
+        this.segments = [];
+        
+        // Reset food
+        if (this.food) {
+            this.scene.remove(this.food);
+            this.food = null;
+        }
+        
+        // Spawn new food
+        this.spawnFood();
     }
 }
