@@ -13,7 +13,7 @@ class Snake3D {
         
         // Initialize clock for frame rate control
         this.clock = new THREE.Clock();
-        this.targetFrameRate = 60;
+        this.targetFrameRate = 30; // Slower frame rate for smoother gameplay
         this.frameInterval = 1 / this.targetFrameRate;
         
         // Initialize scene and renderer
@@ -236,6 +236,17 @@ class Snake3D {
                 return null;
             }
             
+            // Check self collision first
+            if (this.segments.length > 1) {
+                for (let i = 1; i < this.segments.length; i++) {
+                    const segment = this.segments[i];
+                    if (segment && segment.position && 
+                        this.distanceInHyperbolicSpace(hyperbolicPos, segment.position) < 0.5) {
+                        return 'self';
+                    }
+                }
+            }
+            
             // Check food collision
             if (this.food.position && this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
                 this.score += 10 * this.pointMultiplier;
@@ -262,11 +273,6 @@ class Snake3D {
                 return 'food';
             }
             
-            // Check self collision
-            if (this.segments.length > 1 && this.segments.slice(1).some(segment => 
-                segment && segment.position && this.distanceInHyperbolicSpace(hyperbolicPos, segment.position) < 0.5)) {
-                return 'self';
-            }
             return null;
         } catch (error) {
             console.error('Error checking collision:', error);
