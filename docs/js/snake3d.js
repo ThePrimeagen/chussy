@@ -275,6 +275,14 @@ class Snake3D {
     
     animate() {
         if (!this.scene || !this.renderer || !this.camera) return;
+        
+        // Control frame rate
+        const delta = this.clock.getDelta();
+        if (delta < this.frameInterval) {
+            setTimeout(() => this.animate(), (this.frameInterval - delta) * 1000);
+            return;
+        }
+        
         requestAnimationFrame(() => this.animate());
         this.update();
         try {
