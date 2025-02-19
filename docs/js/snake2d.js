@@ -155,12 +155,12 @@ class Snake2D {
             case 'arrowup':
             case 'w':
             case 'k':
-                if (this.direction.y !== 1) newDirection.y = -1, newDirection.x = 0;
+                if (this.direction.y !== 1) newDirection.y = 1, newDirection.x = 0;
                 break;
             case 'arrowdown':
             case 's':
             case 'j':
-                if (this.direction.y !== -1) newDirection.y = 1, newDirection.x = 0;
+                if (this.direction.y !== -1) newDirection.y = -1, newDirection.x = 0;
                 break;
             case 'arrowleft':
             case 'a':
