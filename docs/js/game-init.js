@@ -65,12 +65,16 @@ function updateUI() {
 
 // Event listeners
 document.addEventListener('keydown', (e) => {
-    window.game.handleInput(e.key.toLowerCase());
+    if (window.game) {
+        window.game.handleInput(e.key.toLowerCase());
+    }
 });
 
 document.getElementById('restartBtn').addEventListener('click', () => {
-    window.game.reset();
-    document.getElementById('overlay').classList.add('hidden');
+    if (window.game) {
+        window.game.reset();
+        document.getElementById('overlay').classList.add('hidden');
+    }
 });
 
 document.getElementById('themeToggle').addEventListener('click', () => {
