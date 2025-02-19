@@ -27,6 +27,11 @@
     function checkInactivity() {
         const timeSinceKeyActivity = Date.now() - lastKeyActivityTime;
         
+        // Activate bot after 30 seconds of inactivity
+        if (timeSinceKeyActivity >= 30000 && window.snakeBot && !window.snakeBot.isActive) {
+            window.snakeBot.activate();
+        }
+        
         if (timeSinceKeyActivity >= TIMEOUT) {
             window.location.reload();
         } else if (timeSinceKeyActivity >= TIMEOUT - COUNTDOWN_START) {
@@ -48,6 +53,9 @@
         lastKeyActivityTime = Date.now();
         countdownEl.style.opacity = '0';
         countdownEl.style.animation = 'none';
+        if (window.snakeBot) {
+            window.snakeBot.deactivate();
+        }
     }
 
     // Add pulse animation keyframes
