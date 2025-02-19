@@ -1,4 +1,0 @@
-fastapi==0.109.2
-uvicorn==0.27.1
-websockets==12.0
-python-multipart==0.0.6
