@@ -178,10 +178,12 @@ class Snake3D {
 
     // Check for collisions in hyperbolic space
     checkCollision(position) {
+        if (!position || !this.food) return null;
+        
         const hyperbolicPos = this.applyHyperbolicTransform(position);
         
         // Check food collision
-        if (this.food && this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
+        if (this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
             this.score += 10 * this.pointMultiplier;
             this.gems++;
             
@@ -205,9 +207,15 @@ class Snake3D {
     }
     
     animate() {
+        if (!this.scene || !this.renderer || !this.camera) return;
         requestAnimationFrame(() => this.animate());
         this.update();
-        this.renderer.render(this.scene, this.camera);
+        try {
+            this.renderer.render(this.scene, this.camera);
+        } catch (error) {
+            console.error('Failed to render scene:', error);
+            document.getElementById('overlay').classList.remove('hidden');
+        }
     }
     
     // Apply hyperbolic transformation
@@ -222,8 +230,11 @@ class Snake3D {
     }
 
     update() {
-        // Update snake position
-        this.position.add(this.direction.multiplyScalar(this.speed));
+        if (!this.segments || !this.scene) return;
+        
+        // Create a copy of direction for position update to avoid modifying the original
+        const moveDir = this.direction.clone().multiplyScalar(this.speed);
+        this.position.add(moveDir);
         const hyperbolicPos = this.applyHyperbolicTransform(this.position);
         
         // Check collisions
@@ -262,24 +273,30 @@ class Snake3D {
     }
     
     handleInput(key) {
+        if (!key) return;
+        
         const dir = new THREE.Vector3();
         dir.copy(this.direction);
         
         switch(key) {
             case 'arrowup':
             case 'w':
+            case 'k':
                 dir.z = -1;
                 break;
             case 'arrowdown':
             case 's':
+            case 'j':
                 dir.z = 1;
                 break;
             case 'arrowleft':
             case 'a':
+            case 'h':
                 dir.x = -1;
                 break;
             case 'arrowright':
             case 'd':
+            case 'l':
                 dir.x = 1;
                 break;
             case 'r': // Move up
@@ -289,11 +306,13 @@ class Snake3D {
                 dir.y = -1;
                 break;
             case 'q': // Roll left
-                this.yRotation -= Math.PI / 2;
+                this.yRotation = (this.yRotation - Math.PI / 2) % (Math.PI * 2);
                 break;
             case 'e': // Roll right
-                this.yRotation += Math.PI / 2;
+                this.yRotation = (this.yRotation + Math.PI / 2) % (Math.PI * 2);
                 break;
+            default:
+                return; // Ignore unknown keys
         }
         
         // Apply rotation
