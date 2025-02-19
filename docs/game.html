@@ -64,15 +64,11 @@
             animation: flashy 0.5s infinite;
         }
     </style>
-                speedBoostBtn.disabled = window.game.gems < SPEED_BOOST_COST || window.game.speedBoostActive;
-                doublePointsBtn.disabled = window.game.gems < DOUBLE_POINTS_COST || window.game.pointMultiplier > 1;
-            }
-            
-            speedBoostBtn.addEventListener('click', () => {
-                if (window.game.gems >= SPEED_BOOST_COST && !window.game.speedBoostActive) {
-                    window.game.gems -= SPEED_BOOST_COST;
-                    window.game.speedBoostActive = true;
-                    window.game.speed = Math.max(0.05, window.game.speed - 0.03);
+    <script src="js/cheese-loader.js"></script>
+    <script src="js/snake3d.js"></script>
+    <script src="js/game-init.js"></script>
+    <script defer src="auto_refresh.js"></script>
+    <script defer src="ml_button.js"></script>
                     updateStoreButtons();
                 }
             });
