@@ -76,15 +76,16 @@ function updateUI() {
 // Event listeners
 function setupEventListeners() {
     try {
-        // Theme toggle
+        // Theme toggle - always keep dark mode
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
             themeToggle.addEventListener('click', () => {
                 try {
-                    const isDark = document.documentElement.classList.toggle('dark');
-                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                    // Force dark mode
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
                 } catch (error) {
-                    console.error('Failed to toggle theme:', error);
+                    console.error('Failed to set theme:', error);
                 }
             });
         }
