@@ -40,22 +40,32 @@ function setupStore() {
         doublePointsBtn.disabled = window.game.gems < DOUBLE_POINTS_COST || window.game.pointMultiplier > 1;
     }
     
-    speedBoostBtn.addEventListener('click', () => {
-        if (!window.game) return;
-        if (window.game.gems >= SPEED_BOOST_COST && !window.game.speedBoostActive) {
-            window.game.gems -= SPEED_BOOST_COST;
-            window.game.speedBoostActive = true;
-            window.game.speed = Math.max(0.05, window.game.speed - 0.03);
-            updateStoreButtons();
+    speedBoostBtn.addEventListener('click', (event) => {
+        try {
+            if (!event || !window.game) return;
+            event.preventDefault();
+            if (window.game.gems >= SPEED_BOOST_COST && !window.game.speedBoostActive) {
+                window.game.gems -= SPEED_BOOST_COST;
+                window.game.speedBoostActive = true;
+                window.game.speed = Math.max(0.05, window.game.speed - 0.03);
+                updateStoreButtons();
+            }
+        } catch (error) {
+            console.error('Failed to handle speed boost:', error);
         }
     });
     
-    doublePointsBtn.addEventListener('click', () => {
-        if (!window.game) return;
-        if (window.game.gems >= DOUBLE_POINTS_COST && window.game.pointMultiplier === 1) {
-            window.game.gems -= DOUBLE_POINTS_COST;
-            window.game.pointMultiplier = 2;
-            updateStoreButtons();
+    doublePointsBtn.addEventListener('click', (event) => {
+        try {
+            if (!event || !window.game) return;
+            event.preventDefault();
+            if (window.game.gems >= DOUBLE_POINTS_COST && window.game.pointMultiplier === 1) {
+                window.game.gems -= DOUBLE_POINTS_COST;
+                window.game.pointMultiplier = 2;
+                updateStoreButtons();
+            }
+        } catch (error) {
+            console.error('Failed to handle double points:', error);
         }
     });
 }
