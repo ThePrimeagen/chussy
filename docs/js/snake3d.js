@@ -297,6 +297,10 @@ class Snake3D {
                 console.error('Error playing sound effect:', error);
             }
             document.getElementById('overlay').classList.remove('hidden');
+            setTimeout(() => {
+                this.reset();
+                document.getElementById('overlay').classList.add('hidden');
+            }, 3000);
             return;
         }
         
