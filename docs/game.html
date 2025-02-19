@@ -21,15 +21,22 @@
                             text: '#4a0072' // Deep purple for contrast
                         },
                         dark: {
-                            bg: '#2d0059', // Deep purple background
+                            bg: '#000000', // Pure black background
                             text: '#ffffa0' // Bright yellow text
                         }
+                    },
+                    fontFamily: {
+                        'comic': ['Comic Sans MS', 'Comic Sans', 'cursive']
                     }
                 }
             }
         }
     </script>
     <style>
+        /* Comic Sans for all text */
+        * {
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive !important;
+        }
         /* Extra large text for better visibility */
         .game-text {
             font-size: 1.25rem;
