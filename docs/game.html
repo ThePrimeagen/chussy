@@ -255,11 +255,22 @@
             let newDirection;
             const lastQueuedDirection = directionQueue.length > 0 ? directionQueue[directionQueue.length - 1] : direction;
             
-            switch(e.key) {
-                case 'ArrowUp': if (lastQueuedDirection !== 'down') newDirection = 'up'; break;
-                case 'ArrowDown': if (lastQueuedDirection !== 'up') newDirection = 'down'; break;
-                case 'ArrowLeft': if (lastQueuedDirection !== 'right') newDirection = 'left'; break;
-                case 'ArrowRight': if (lastQueuedDirection !== 'left') newDirection = 'right'; break;
+            switch(e.key.toLowerCase()) {
+                // Arrow keys
+                case 'arrowup': if (lastQueuedDirection !== 'down') newDirection = 'up'; break;
+                case 'arrowdown': if (lastQueuedDirection !== 'up') newDirection = 'down'; break;
+                case 'arrowleft': if (lastQueuedDirection !== 'right') newDirection = 'left'; break;
+                case 'arrowright': if (lastQueuedDirection !== 'left') newDirection = 'right'; break;
+                // WASD keys
+                case 'w': if (lastQueuedDirection !== 'down') newDirection = 'up'; break;
+                case 's': if (lastQueuedDirection !== 'up') newDirection = 'down'; break;
+                case 'a': if (lastQueuedDirection !== 'right') newDirection = 'left'; break;
+                case 'd': if (lastQueuedDirection !== 'left') newDirection = 'right'; break;
+                // Vim keys (hjkl)
+                case 'k': if (lastQueuedDirection !== 'down') newDirection = 'up'; break;
+                case 'j': if (lastQueuedDirection !== 'up') newDirection = 'down'; break;
+                case 'h': if (lastQueuedDirection !== 'right') newDirection = 'left'; break;
+                case 'l': if (lastQueuedDirection !== 'left') newDirection = 'right'; break;
             }
             
             // Only add new direction if it's valid and different from the last queued direction
