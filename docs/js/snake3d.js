@@ -182,9 +182,13 @@ class Snake3D {
 
     // Check for collisions in hyperbolic space
     checkCollision(position) {
-        if (!position || !this.food) return null;
+        if (!position || !this.food || !this.scene) {
+            console.warn('Cannot check collision: missing required components');
+            return null;
+        }
         
-        const hyperbolicPos = this.applyHyperbolicTransform(position);
+        try {
+            const hyperbolicPos = this.applyHyperbolicTransform(position);
         
         // Check food collision
         if (this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
@@ -234,11 +238,19 @@ class Snake3D {
     }
 
     update() {
-        if (!this.segments || !this.scene) return;
+        if (!this.segments || !this.scene || !this.renderer || !this.camera) {
+            console.warn('Cannot update game: required components not initialized');
+            return;
+        }
         
         // Handle autoplay if enabled
         if (this.autoplayEnabled) {
-            this.handleBotMove();
+            try {
+                this.handleBotMove();
+            } catch (error) {
+                console.error('Error in bot movement:', error);
+                this.autoplayEnabled = false;
+            }
         }
         
         // Create a copy of direction for position update to avoid modifying the original
@@ -256,10 +268,15 @@ class Snake3D {
             try {
                 const sound = document.getElementById('vineBoomSound');
                 if (sound) {
-                    sound.play().catch(console.error); // Handle autoplay restrictions
+                    sound.currentTime = 0; // Reset sound to start
+                    sound.play().catch(error => {
+                        console.warn('Failed to play sound (possibly due to autoplay restrictions):', error);
+                    });
+                } else {
+                    console.warn('Vine boom sound effect not found');
                 }
             } catch (error) {
-                console.error('Failed to play sound:', error);
+                console.error('Error playing sound effect:', error);
             }
             document.getElementById('overlay').classList.remove('hidden');
             return;
@@ -293,7 +310,10 @@ class Snake3D {
     }
     
     handleInput(key) {
-        if (!key || this.autoplayEnabled) return;
+        if (!key || !this.scene || !this.renderer || !this.camera || this.autoplayEnabled) {
+            console.warn('Cannot handle input: game not fully initialized or in autoplay mode');
+            return;
+        }
         
         const dir = new THREE.Vector3();
         dir.copy(this.direction);
