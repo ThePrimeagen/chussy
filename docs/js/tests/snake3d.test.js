@@ -57,11 +57,21 @@ const mockMaterial = {
     opacity: 0.9
 };
 
+class MockClock {
+    getDelta() {
+        return 1/60;
+    }
+    start() {
+        return this;
+    }
+}
+
 const THREE = {
     Scene: jest.fn(() => ({
         add: jest.fn(),
         remove: jest.fn()
     })),
+    Clock: jest.fn(() => new MockClock()),
     PerspectiveCamera: jest.fn(() => ({
         position: new MockVector3(),
         lookAt: jest.fn()
