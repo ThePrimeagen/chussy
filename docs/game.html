@@ -46,14 +46,18 @@
             border-color: #ffffa0;
         }
     </style>
+    <!-- Load dependencies first -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
     <audio id="vineBoomSound" src="sounds/vine-boom.mp3" preload="auto"></audio>
+    
+    <!-- Load game scripts in correct order -->
+    <!-- Load game scripts in correct order -->
     <script src="js/cheese-loader.js"></script>
     <script src="js/snake3d.js"></script>
     <script src="js/game-init.js"></script>
-    <script defer src="auto_refresh.js"></script>
-    <script defer src="ml_button.js"></script>
+    <script src="js/auto_refresh.js"></script>
+    <script src="js/ml_button.js"></script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -62,62 +66,10 @@
         }
         .animate-flashy {
             animation: flashy 0.5s infinite;
-        }
-    </style>
-    <script src="js/cheese-loader.js"></script>
-    <script src="js/snake3d.js"></script>
-    <script src="js/game-init.js"></script>
-    <script defer src="auto_refresh.js"></script>
-    <script defer src="ml_button.js"></script>
-                    updateStoreButtons();
-                }
-            });
-            
-            doublePointsBtn.addEventListener('click', () => {
-                if (window.game.gems >= DOUBLE_POINTS_COST && window.game.pointMultiplier === 1) {
-                    window.game.gems -= DOUBLE_POINTS_COST;
-                    window.game.pointMultiplier = 2;
-                    updateStoreButtons();
-                }
-            });
-        }
-        
-        // Initialize game when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initGame);
-    </script>
-    <style>
-        @keyframes flashy {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        .animate-flashy {
-            animation: flashy 0.5s infinite;
-        }
-        @keyframes rickroll {
-            0% { content: "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"; }
-            20% { content: "⠀⠀⠀⠀⠀⠀⢀⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⠀⠀⠀⠀⠀⠀⠀"; }
-            40% { content: "⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀"; }
-            60% { content: "⠀⠀⠀⣠⣿⣿⣿⣿⠿⠋⠉⠀⠀⠀⠉⠙⠿⣿⣿⣿⣿⣿⣦⠀⠀⠀⠀"; }
-            80% { content: "⠀⠀⣼⣿⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣿⣿⣿⣧⠀⠀⠀"; }
-            100% { content: "⠀⣼⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣧⠀⠀"; }
-        }
-        .rickroll-bg::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            font-family: monospace;
-            white-space: pre;
-            color: #444;
-            z-index: -1;
-            animation: rickroll 2s infinite;
         }
         .game-container {
             position: relative;
-            background-color: #87CEEB;
+            background-color: #1a1a2e;
             border-radius: 8px;
             padding: 16px;
         }
@@ -156,6 +108,12 @@
 
             <!-- Game Stats -->
             <div class="w-64">
+                <!-- Cheese Facts -->
+                <div class="game-border p-4 rounded-lg mb-4 bg-light-bg dark:bg-dark-bg">
+                    <h2 class="text-xl font-bold mb-2 game-text">🧀 Cheese Fact of the Day</h2>
+                    <p id="cheeseFact" class="game-text italic">Did you know? The world's most expensive cheese is made from moose milk and costs around $500 per pound!</p>
+                </div>
+
                 <div class="game-border p-4 rounded-lg mb-4 bg-light-bg dark:bg-dark-bg">
                     <h2 class="text-xl font-bold mb-2 game-text">Stats</h2>
                     <p class="game-text">Score: <span id="score">0</span></p>
@@ -232,116 +190,6 @@
     </div>
 
     <!-- Load sound effects -->
-    <audio id="vineBoomSound" src="https://www.myinstants.com/media/sounds/vine-boom.mp3" preload="auto"></audio>
-
-    <script>
-        // Game constants
-        const SPEED_BOOST_COST = 100;
-        const DOUBLE_POINTS_COST = 200;
-        
-        // Initialize game
-        async function initGame() {
-            try {
-                // Get canvas element
-                const canvas = document.getElementById('gameCanvas');
-                
-                // Initialize 3D game
-                window.game = new Snake3D(canvas);
-                await window.game.init();
-                
-                // Setup store functionality
-                setupStore();
-                
-                // Start game
-                updateUI();
-            } catch (error) {
-                console.error('Failed to initialize game:', error);
-                const overlay = document.getElementById('overlay');
-                const message = document.createElement('div');
-                message.textContent = 'Failed to load game. Please refresh the page.';
-                message.classList.add('text-red-500', 'text-xl', 'font-bold');
-                overlay.querySelector('.text-center').prepend(message);
-                overlay.classList.remove('hidden');
-            }
-        }
-
-        // Store functionality
-        function setupStore() {
-            const speedBoostBtn = document.getElementById('speedBoostBtn');
-            const doublePointsBtn = document.getElementById('doublePointsBtn');
-            
-            function updateStoreButtons() {
-                speedBoostBtn.disabled = window.game.gems < SPEED_BOOST_COST || window.game.speedBoostActive;
-                doublePointsBtn.disabled = window.game.gems < DOUBLE_POINTS_COST || window.game.pointMultiplier > 1;
-        }
-        
-        speedBoostBtn.addEventListener('click', () => {
-            if (game.gems >= SPEED_BOOST_COST && !game.speedBoostActive) {
-                game.gems -= SPEED_BOOST_COST;
-                game.speedBoostActive = true;
-                game.speed = Math.max(0.05, game.speed - 0.03);
-                updateStoreButtons();
-            }
-        });
-        
-        doublePointsBtn.addEventListener('click', () => {
-            if (game.gems >= DOUBLE_POINTS_COST && game.pointMultiplier === 1) {
-                game.gems -= DOUBLE_POINTS_COST;
-                game.pointMultiplier = 2;
-                updateStoreButtons();
-            }
-        });
-        
-        // Socket for ML button compatibility
-        const socket = { send: () => {} };
-        window.socket = socket;
-        const DIRECTION_CHANGE_DELAY = 50; // Minimum 50ms between direction changes
-
-        // Get DOM elements
-        const scoreElement = document.getElementById('score');
-        const levelElement = document.getElementById('level');
-        const gemsElement = document.getElementById('gems');
-        const overlay = document.getElementById('overlay');
-        const restartBtn = document.getElementById('restartBtn');
-
-        // Update UI elements
-        function updateUI() {
-            scoreElement.textContent = game.score;
-            levelElement.textContent = game.level;
-            gemsElement.textContent = game.gems;
-        }
-
-        // Event listeners
-        document.addEventListener('keydown', (e) => {
-            game.handleInput(e.key.toLowerCase());
-        });
-
-        restartBtn.addEventListener('click', () => {
-            game.reset();
-            overlay.classList.add('hidden');
-        });
-
-        // Theme toggle functionality
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-
-                // Start game
-                updateUI();
-            } catch (error) {
-                console.error('Failed to initialize game:', error);
-                const overlay = document.getElementById('overlay');
-                const message = document.createElement('div');
-                message.textContent = 'Failed to load game. Please refresh the page.';
-                message.classList.add('text-red-500', 'text-xl', 'font-bold');
-                overlay.querySelector('.text-center').prepend(message);
-                overlay.classList.remove('hidden');
-            }
-        }
-        
-        // Initialize game when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initGame);
-    </script>
+    <audio id="vineBoomSound" src="sounds/vine-boom.mp3" preload="auto"></audio>
 </body>
 </html>
