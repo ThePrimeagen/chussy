@@ -53,19 +53,64 @@ const mockMaterial = {
     clone: jest.fn().mockReturnThis()
 };
 
-const mockVector3 = {
-    set: jest.fn().mockReturnThis(),
-    add: jest.fn().mockReturnThis(),
-    copy: jest.fn().mockReturnThis(),
-    clone: jest.fn().mockReturnThis(),
-    multiplyScalar: jest.fn().mockReturnThis(),
-    normalize: jest.fn().mockReturnThis(),
-    applyAxisAngle: jest.fn().mockReturnThis(),
-    subVectors: jest.fn().mockReturnThis(),
-    distanceTo: jest.fn().mockReturnValue(0),
-    x: 0,
-    y: 0,
-    z: 0
+class MockVector3 {
+    constructor(x = 0, y = 0, z = 0) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    set(x, y, z) {
+        this.x = x || 0;
+        this.y = y || 0;
+        this.z = z || 0;
+        return this;
+    }
+    add(v) {
+        this.x += v.x;
+        this.y += v.y;
+        this.z += v.z;
+        return this;
+    }
+    copy(v) {
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
+        return this;
+    }
+    clone() {
+        return new MockVector3(this.x, this.y, this.z);
+    }
+    multiplyScalar(s) {
+        this.x *= s;
+        this.y *= s;
+        this.z *= s;
+        return this;
+    }
+    normalize() {
+        const length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        if (length > 0) {
+            this.x /= length;
+            this.y /= length;
+            this.z /= length;
+        }
+        return this;
+    }
+    applyAxisAngle(axis, angle) {
+        // Simplified for tests
+        return this;
+    }
+    subVectors(a, b) {
+        this.x = a.x - b.x;
+        this.y = a.y - b.y;
+        this.z = a.z - b.z;
+        return this;
+    }
+    distanceTo(v) {
+        const dx = this.x - v.x;
+        const dy = this.y - v.y;
+        const dz = this.z - v.z;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
 };
 
 const THREE = {
@@ -74,9 +119,10 @@ const THREE = {
         remove: jest.fn()
     })),
     PerspectiveCamera: jest.fn(() => ({
-        position: { ...mockVector3 },
+        position: new MockVector3(),
         lookAt: jest.fn()
     })),
+    Vector3: MockVector3,
     WebGLRenderer: jest.fn(() => ({
         setSize: jest.fn(),
         render: jest.fn(),
@@ -196,11 +242,13 @@ describe('Snake3D', () => {
     });
 
     test('handleInput updates direction correctly', () => {
-        game.direction = new THREE.Vector3(0, 0, 0);
+        game.direction = new MockVector3();
+        game.autoplayEnabled = false;
         game.handleInput('w');
         expect(game.direction.z).toBe(-1);
         
-        game.direction = new THREE.Vector3(0, 0, 0);
+        game.direction = new MockVector3();
+        game.autoplayEnabled = false;
         game.handleInput('s');
         expect(game.direction.z).toBe(1);
     });
