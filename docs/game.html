@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kyoto Snake Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="auto_refresh.js"></script>
+    <script src="ml_button.js"></script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -45,10 +47,10 @@
                 <div class="bg-gray-800 p-4 rounded-lg">
                     <h2 class="text-xl font-bold mb-2">Store</h2>
                     <div class="space-y-2">
-                        <button class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600">
+                        <button id="speedBoostBtn" class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed">
                             Speed Boost (100 💎)
                         </button>
-                        <button class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600">
+                        <button id="doublePointsBtn" class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed">
                             Double Points (200 💎)
                         </button>
                     </div>
@@ -66,16 +68,28 @@
     </div>
 
     <script>
+        // WebSocket setup
+        const socket = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
+        window.socket = socket; // Make socket globally available for ML button
+
         // Game state
         let snake = [{x: 10, y: 10}];
         let food = {x: 15, y: 15};
         let direction = 'right';
+        let nextDirection = 'right';
+        let lastDirectionChange = Date.now();
+        let directionQueue = [];
         let score = 0;
         let level = 1;
         let gems = 0;
         let gameSpeed = 100;
         let gameLoop;
         let isGameOver = false;
+        let pointMultiplier = 1;
+        let speedBoostActive = false;
+        const DIRECTION_CHANGE_DELAY = 50; // Minimum 50ms between direction changes
+        const SPEED_BOOST_COST = 100;
+        const DOUBLE_POINTS_COST = 200;
 
         // Get DOM elements
         const canvas = document.getElementById('gameCanvas');
@@ -113,6 +127,13 @@
         function gameStep() {
             if (isGameOver) return;
 
+            // Process direction queue
+            if (directionQueue.length > 0 && Date.now() - lastDirectionChange >= DIRECTION_CHANGE_DELAY) {
+                nextDirection = directionQueue.shift();
+                direction = nextDirection;
+                lastDirectionChange = Date.now();
+            }
+
             // Move snake
             const head = {...snake[0]};
             switch(direction) {
@@ -139,14 +160,16 @@
 
             // Check if food is eaten
             if (head.x === food.x && head.y === food.y) {
-                score += 10;
+                score += 10 * pointMultiplier;
                 gems++;
                 food = getRandomPosition();
                 if (score % 50 === 0) {
                     level++;
-                    gameSpeed = Math.max(50, gameSpeed - 10);
-                    clearInterval(gameLoop);
-                    gameLoop = setInterval(gameStep, gameSpeed);
+                    if (!speedBoostActive) {
+                        gameSpeed = Math.max(50, gameSpeed - 10);
+                        clearInterval(gameLoop);
+                        gameLoop = setInterval(gameStep, gameSpeed);
+                    }
                 }
             } else {
                 snake.pop();
@@ -189,18 +212,57 @@
 
         // Event listeners
         document.addEventListener('keydown', (e) => {
+            let newDirection;
             switch(e.key) {
-                case 'ArrowUp': if (direction !== 'down') direction = 'up'; break;
-                case 'ArrowDown': if (direction !== 'up') direction = 'down'; break;
-                case 'ArrowLeft': if (direction !== 'right') direction = 'left'; break;
-                case 'ArrowRight': if (direction !== 'left') direction = 'right'; break;
+                case 'ArrowUp': if (direction !== 'down' && nextDirection !== 'down') newDirection = 'up'; break;
+                case 'ArrowDown': if (direction !== 'up' && nextDirection !== 'up') newDirection = 'down'; break;
+                case 'ArrowLeft': if (direction !== 'right' && nextDirection !== 'right') newDirection = 'left'; break;
+                case 'ArrowRight': if (direction !== 'left' && nextDirection !== 'left') newDirection = 'right'; break;
+            }
+            if (newDirection && directionQueue.length < 2) { // Limit queue size to prevent too many buffered moves
+                directionQueue.push(newDirection);
+                socket.send(JSON.stringify({
+                    action: 'direction',
+                    direction: newDirection
+                }));
             }
         });
 
         restartBtn.addEventListener('click', initGame);
 
+        // Store functionality
+        const speedBoostBtn = document.getElementById('speedBoostBtn');
+        const doublePointsBtn = document.getElementById('doublePointsBtn');
+
+        function updateStoreButtons() {
+            speedBoostBtn.disabled = gems < SPEED_BOOST_COST || speedBoostActive;
+            doublePointsBtn.disabled = gems < DOUBLE_POINTS_COST || pointMultiplier > 1;
+        }
+
+        speedBoostBtn.addEventListener('click', () => {
+            if (gems >= SPEED_BOOST_COST && !speedBoostActive) {
+                gems -= SPEED_BOOST_COST;
+                speedBoostActive = true;
+                gameSpeed = Math.max(30, gameSpeed - 30);
+                clearInterval(gameLoop);
+                gameLoop = setInterval(gameStep, gameSpeed);
+                updateUI();
+                updateStoreButtons();
+            }
+        });
+
+        doublePointsBtn.addEventListener('click', () => {
+            if (gems >= DOUBLE_POINTS_COST && pointMultiplier === 1) {
+                gems -= DOUBLE_POINTS_COST;
+                pointMultiplier = 2;
+                updateUI();
+                updateStoreButtons();
+            }
+        });
+
         // Start game
         initGame();
+        updateStoreButtons();
     </script>
 </body>
 </html>
