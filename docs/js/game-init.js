@@ -98,16 +98,13 @@ const DOUBLE_POINTS_COST = 200;
 const DIRECTION_CHANGE_DELAY = 50;
 
 // Initialize game when all scripts are loaded
-window.addEventListener('DOMContentLoaded', async () => {
+function initializeGame() {
     try {
-        // Wait for all scripts to load
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
         if (typeof Snake3D === 'undefined') {
             throw new Error('Snake3D not loaded. Please check script loading order.');
         }
         
-        await initGame();
+        initGame();
         
         // Update store buttons after initialization
         const speedBoostBtn = document.getElementById('speedBoostBtn');
@@ -147,4 +144,27 @@ window.addEventListener('DOMContentLoaded', async () => {
             }
         }
     }
+}
+
+// Try to initialize multiple times in case scripts are still loading
+let attempts = 0;
+const maxAttempts = 5;
+const attemptInterval = 200;
+
+function tryInitialize() {
+    if (attempts >= maxAttempts) {
+        console.error('Failed to initialize game after multiple attempts');
+        return;
+    }
+    
+    if (typeof Snake3D === 'undefined') {
+        attempts++;
+        setTimeout(tryInitialize, attemptInterval);
+    } else {
+        initializeGame();
+    }
+}
+
+// Start initialization attempts when DOM is ready
+document.addEventListener('DOMContentLoaded', tryInitialize);
 });
