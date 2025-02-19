@@ -98,38 +98,27 @@ const DOUBLE_POINTS_COST = 200;
 const DIRECTION_CHANGE_DELAY = 50;
 
 // Initialize game when all scripts are loaded
-function initializeGame() {
+async function initializeGame() {
     try {
         if (typeof Snake3D === 'undefined') {
             throw new Error('Snake3D not loaded. Please check script loading order.');
         }
         
-        initGame();
-        
-        // Update store buttons after initialization
-        const speedBoostBtn = document.getElementById('speedBoostBtn');
-        const doublePointsBtn = document.getElementById('doublePointsBtn');
-        
-        if (speedBoostBtn && doublePointsBtn) {
-            updateStoreButtons();
-            
-            speedBoostBtn.addEventListener('click', () => {
-                if (window.game && window.game.gems >= SPEED_BOOST_COST && !window.game.speedBoostActive) {
-                    window.game.gems -= SPEED_BOOST_COST;
-                    window.game.speedBoostActive = true;
-                    window.game.speed = Math.max(0.05, window.game.speed - 0.03);
-                    updateStoreButtons();
-                }
-            });
-            
-            doublePointsBtn.addEventListener('click', () => {
-                if (window.game && window.game.gems >= DOUBLE_POINTS_COST && window.game.pointMultiplier === 1) {
-                    window.game.gems -= DOUBLE_POINTS_COST;
-                    window.game.pointMultiplier = 2;
-                    updateStoreButtons();
-                }
-            });
+        // Get canvas element
+        const canvas = document.getElementById('gameCanvas');
+        if (!canvas) {
+            throw new Error('Game canvas not found');
         }
+        
+        // Initialize 3D game
+        window.game = new Snake3D(canvas);
+        await window.game.init();
+        
+        // Setup store functionality
+        setupStore();
+        
+        // Start game
+        updateUI();
     } catch (error) {
         console.error('Failed to initialize game:', error);
         const overlay = document.getElementById('overlay');
