@@ -83,9 +83,18 @@
     </div>
 
     <script>
-        // WebSocket setup
-        const socket = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
-        window.socket = socket; // Make socket globally available for ML button
+        // WebSocket setup with fallback
+        let socket;
+        try {
+            socket = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
+            window.socket = socket; // Make socket globally available for ML button
+        } catch (e) {
+            console.warn('WebSocket connection failed, game will run without server features');
+            socket = {
+                send: () => {} // Noop function for when socket fails
+            };
+            window.socket = socket;
+        }
 
         // Game state
         let snake = [{x: 10, y: 10}];
@@ -273,10 +282,14 @@
                 (directionQueue.length === 0 || newDirection !== lastQueuedDirection) &&
                 directionQueue.length < 3) { // Allow slightly more buffered moves for smoother control
                 directionQueue.push(newDirection);
-                socket.send(JSON.stringify({
-                    action: 'direction',
-                    direction: newDirection
-                }));
+                try {
+                    socket.send(JSON.stringify({
+                        action: 'direction',
+                        direction: newDirection
+                    }));
+                } catch (e) {
+                    console.warn('Failed to send direction to server');
+                }
             }
         });
 
