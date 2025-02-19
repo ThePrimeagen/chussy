@@ -74,23 +74,37 @@ function updateUI() {
 }
 
 // Event listeners
-document.addEventListener('keydown', (e) => {
-    if (window.game) {
-        window.game.handleInput(e.key.toLowerCase());
+function setupEventListeners() {
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
     }
-});
 
-document.getElementById('restartBtn').addEventListener('click', () => {
-    if (window.game) {
-        window.game.reset();
-        document.getElementById('overlay').classList.add('hidden');
+    // Game controls
+    document.addEventListener('keydown', (e) => {
+        if (window.game) {
+            window.game.handleInput(e.key.toLowerCase());
+        }
+    });
+
+    // Restart button
+    const restartBtn = document.getElementById('restartBtn');
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            if (window.game) {
+                window.game.reset();
+                const overlay = document.getElementById('overlay');
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                }
+            }
+        });
     }
-});
-
-document.getElementById('themeToggle').addEventListener('click', () => {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-});
+}
 
 // Constants
 const SPEED_BOOST_COST = 100;
@@ -114,8 +128,9 @@ async function initializeGame() {
         window.game = new Snake3D(canvas);
         await window.game.init();
         
-        // Setup store functionality
+        // Setup game functionality
         setupStore();
+        setupEventListeners();
         
         // Start game
         updateUI();
