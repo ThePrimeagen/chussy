@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local WorkoutRoutine = require(ReplicatedStorage.Shared.WorkoutRoutine)
 
 local BattlePassUI = {}
 BattlePassUI.__index = BattlePassUI
@@ -111,12 +112,47 @@ function BattlePassUI:updateRewards(rewards)
         rewardFrame.BackgroundColor3 = reward.unlocked and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(100, 100, 100)
         rewardFrame.BackgroundTransparency = 0.5
 
-        local rewardLabel = Instance.new("TextLabel")
-        rewardLabel.Size = UDim2.new(1, 0, 1, 0)
-        rewardLabel.BackgroundTransparency = 1
-        rewardLabel.Text = string.format("Level %d\n%s", level, reward.name)
-        rewardLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        rewardLabel.Parent = rewardFrame
+        if reward.type == "workout" then
+            local rewardLabel = Instance.new("TextLabel")
+            rewardLabel.Size = UDim2.new(1, 0, 0.3, 0)
+            rewardLabel.BackgroundTransparency = 1
+            rewardLabel.Text = string.format("Level %d\n%s", level, reward.name)
+            rewardLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+            rewardLabel.Parent = rewardFrame
+
+            -- Create exercise list
+            local exerciseList = Instance.new("ScrollingFrame")
+            exerciseList.Size = UDim2.new(1, 0, 0.7, 0)
+            exerciseList.Position = UDim2.new(0, 0, 0.3, 0)
+            exerciseList.BackgroundTransparency = 0.9
+            exerciseList.Parent = rewardFrame
+
+            local listLayout = Instance.new("UIListLayout")
+            listLayout.Padding = UDim.new(0.05, 0)
+            listLayout.Parent = exerciseList
+
+            if reward.exercises then
+                for _, exercise in ipairs(reward.exercises) do
+                    local exerciseLabel = Instance.new("TextLabel")
+                    exerciseLabel.Size = UDim2.new(1, 0, 0.2, 0)
+                    exerciseLabel.BackgroundTransparency = 1
+                    if exercise.duration then
+                        exerciseLabel.Text = string.format("• %s (%s)", exercise.name, exercise.duration)
+                    else
+                        exerciseLabel.Text = string.format("• %s (%s)", exercise.name, exercise.reps)
+                    end
+                    exerciseLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    exerciseLabel.Parent = exerciseList
+                end
+            end
+        else
+            local rewardLabel = Instance.new("TextLabel")
+            rewardLabel.Size = UDim2.new(1, 0, 1, 0)
+            rewardLabel.BackgroundTransparency = 1
+            rewardLabel.Text = string.format("Level %d\n%s", level, reward.name)
+            rewardLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            rewardLabel.Parent = rewardFrame
+        end
 
         rewardFrame.Parent = self.rewardsFrame
     end
