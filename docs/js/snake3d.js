@@ -128,6 +128,26 @@ class Snake3D {
         return h1.distanceTo(h2);
     }
 
+    // Spawn food in hyperbolic space
+    spawnFood() {
+        if (this.food) {
+            this.scene.remove(this.food);
+        }
+        
+        const food = new THREE.Mesh(this.snakeGeometry, this.foodMaterial.clone());
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 5 + 2; // Random radius between 2 and 7
+        
+        food.position.set(
+            Math.cos(angle) * radius,
+            0,
+            Math.sin(angle) * radius
+        );
+        
+        this.food = food;
+        this.scene.add(food);
+    }
+
     // Check for collisions in hyperbolic space
     checkCollision(position) {
         const hyperbolicPos = this.applyHyperbolicTransform(position);
@@ -136,6 +156,14 @@ class Snake3D {
         if (this.food && this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
             this.score += 10 * this.pointMultiplier;
             this.gems++;
+            
+            // Add new segment
+            const lastSegment = this.segments[this.segments.length - 1];
+            const newSegment = this.createSegment('body', this.direction);
+            newSegment.position.copy(lastSegment.position);
+            this.segments.push(newSegment);
+            this.scene.add(newSegment);
+            
             this.spawnFood();
             return 'food';
         }
