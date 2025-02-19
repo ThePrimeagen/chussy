@@ -207,85 +207,18 @@
             gemsElement.textContent = gems;
         }
 
-        // Game over handler
-        function gameOver() {
-            isGameOver = true;
-            clearInterval(gameLoop);
-            overlay.classList.remove('hidden');
-            // Play vine boom sound immediately
-            document.getElementById('vineBoomSound').play();
-            // Auto-reload after 3 seconds
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-        }
-
         // Event listeners
         document.addEventListener('keydown', (e) => {
-            let newDirection;
-            const lastQueuedDirection = directionQueue.length > 0 ? directionQueue[directionQueue.length - 1] : direction;
-            
-            switch(e.key.toLowerCase()) {
-                // Arrow keys
-                case 'arrowup': if (lastQueuedDirection !== 'down') newDirection = 'up'; break;
-                case 'arrowdown': if (lastQueuedDirection !== 'up') newDirection = 'down'; break;
-                case 'arrowleft': if (lastQueuedDirection !== 'right') newDirection = 'left'; break;
-                case 'arrowright': if (lastQueuedDirection !== 'left') newDirection = 'right'; break;
-                // WASD keys
-                case 'w': if (lastQueuedDirection !== 'down') newDirection = 'up'; break;
-                case 's': if (lastQueuedDirection !== 'up') newDirection = 'down'; break;
-                case 'a': if (lastQueuedDirection !== 'right') newDirection = 'left'; break;
-                case 'd': if (lastQueuedDirection !== 'left') newDirection = 'right'; break;
-                // Vim keys (hjkl)
-                case 'k': if (lastQueuedDirection !== 'down') newDirection = 'up'; break;
-                case 'j': if (lastQueuedDirection !== 'up') newDirection = 'down'; break;
-                case 'h': if (lastQueuedDirection !== 'right') newDirection = 'left'; break;
-                case 'l': if (lastQueuedDirection !== 'left') newDirection = 'right'; break;
-            }
-            
-            // Only add new direction if it's valid and different from the last queued direction
-            if (newDirection && 
-                (directionQueue.length === 0 || newDirection !== lastQueuedDirection) &&
-                directionQueue.length < 3) { // Allow slightly more buffered moves for smoother control
-                directionQueue.push(newDirection);
-            }
+            game.handleInput(e.key.toLowerCase());
         });
 
-        restartBtn.addEventListener('click', initGame);
-
-        // Store functionality
-        const speedBoostBtn = document.getElementById('speedBoostBtn');
-        const doublePointsBtn = document.getElementById('doublePointsBtn');
-
-        function updateStoreButtons() {
-            speedBoostBtn.disabled = gems < SPEED_BOOST_COST || speedBoostActive;
-            doublePointsBtn.disabled = gems < DOUBLE_POINTS_COST || pointMultiplier > 1;
-        }
-
-        speedBoostBtn.addEventListener('click', () => {
-            if (gems >= SPEED_BOOST_COST && !speedBoostActive) {
-                gems -= SPEED_BOOST_COST;
-                speedBoostActive = true;
-                gameSpeed = Math.max(30, gameSpeed - 30);
-                clearInterval(gameLoop);
-                gameLoop = setInterval(gameStep, gameSpeed);
-                updateUI();
-                updateStoreButtons();
-            }
-        });
-
-        doublePointsBtn.addEventListener('click', () => {
-            if (gems >= DOUBLE_POINTS_COST && pointMultiplier === 1) {
-                gems -= DOUBLE_POINTS_COST;
-                pointMultiplier = 2;
-                updateUI();
-                updateStoreButtons();
-            }
+        restartBtn.addEventListener('click', () => {
+            game.reset();
+            overlay.classList.add('hidden');
         });
 
         // Start game
-        initGame();
-        updateStoreButtons();
+        updateUI();
     </script>
 </body>
 </html>
