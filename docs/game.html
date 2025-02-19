@@ -63,10 +63,6 @@
         .animate-flashy {
             animation: flashy 0.5s infinite;
         }
-                window.game = new Snake3D(canvas);
-                await window.game.init();
-                
-                // Setup store functionality
                 const speedBoostBtn = document.getElementById('speedBoostBtn');
                 const doublePointsBtn = document.getElementById('doublePointsBtn');
                 
@@ -103,15 +99,7 @@
                 });
                 
                 document.getElementById('themeToggle').addEventListener('click', () => {
-                    const isDark = document.documentElement.classList.toggle('dark');
-                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                });
-                
     </style>
-                await window.game.init();
-                
-                // Setup store functionality
-                setupStore();
                 
                 // Start game
                 updateUI();
