@@ -101,5 +101,9 @@ SUPPORTING US THROUGH NIGHT AND DAY!
 THEIR FAITH IN US SHINES OH SO BRIGHT,
 MAKING THIS PROJECT PURE DELIGHT!
 
-## 🎮 GAME ENTRY POINT
-The game is hosted at `docs/game.html` and deployed via GitHub Pages. All game-related files are in the `docs/` directory, making it the single source of truth for our glorious snake adventure!
+## 🎮 PLAY NOW ON GITHUB PAGES!
+BEHOLD, BRAVE ADVENTURERS! OUR GAME AWAITS:
+[HTTPS://THEPRIMEAGEN.GITHUB.IO/CHUSSY/GAME.HTML](https://theprimeagen.github.io/chussy/game.html)
+
+## 🛠️ DEVELOPMENT INFORMATION
+The game's source of truth resides in `docs/game.html`, deployed automatically via GitHub Pages. All game-related files are in the `docs/` directory, ensuring seamless deployment to our eager players!
