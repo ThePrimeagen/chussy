@@ -17,18 +17,35 @@
                 extend: {
                     colors: {
                         light: {
-                            bg: '#ffffff',
-                            text: '#1a202c'
+                            bg: '#ffffe0', // Light yellow for better visibility
+                            text: '#4a0072' // Deep purple for contrast
                         },
                         dark: {
-                            bg: '#1a202c',
-                            text: '#ffffff'
+                            bg: '#2d0059', // Deep purple background
+                            text: '#ffffa0' // Bright yellow text
                         }
                     }
                 }
             }
         }
     </script>
+    <style>
+        /* Extra large text for better visibility */
+        .game-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        /* High contrast borders */
+        .game-border {
+            border-width: 4px;
+            border-style: solid;
+            border-color: #4a0072;
+        }
+        .dark .game-border {
+            border-color: #ffffa0;
+        }
+    </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
     <script defer src="auto_refresh.js"></script>
@@ -75,9 +92,9 @@
 </head>
 <body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-200">
     <div class="fixed top-4 right-4 z-50">
-        <button id="themeToggle" class="bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 text-white">
-            <span class="dark:hidden">🌙</span>
-            <span class="hidden dark:inline">☀️</span>
+        <button id="themeToggle" class="bg-purple-500 px-6 py-3 rounded-lg hover:bg-purple-600 text-white text-2xl font-bold animate-bounce shadow-lg transform hover:scale-110 transition-all duration-200">
+            <span class="dark:hidden">🌙 NIGHT MODE FOR TIRED EYES 👀</span>
+            <span class="hidden dark:inline">☀️ DAY MODE FOR BRAVE SOULS 🦁</span>
         </button>
     </div>
     <div class="container mx-auto px-4 py-8">
@@ -92,8 +109,8 @@
         <div class="flex justify-center gap-8">
             <!-- 3D Game Canvas -->
             <div class="relative">
-                <canvas id="gameCanvas" width="600" height="600" class="border-4 border-purple-500 rounded-lg bg-[#87CEEB]"></canvas>
-                <div class="absolute top-4 left-4 text-black font-mono text-sm">
+                <canvas id="gameCanvas" width="600" height="600" class="game-border rounded-lg bg-light-bg dark:bg-dark-bg"></canvas>
+                <div class="absolute top-4 left-4 game-text text-light-text dark:text-dark-text font-mono">
                     Controls: WASD/Arrow Keys - Move | Q/E - Roll | R/F - Up/Down
                 </div>
                 <div id="overlay" class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden flex items-center justify-center">
@@ -106,21 +123,21 @@
 
             <!-- Game Stats -->
             <div class="w-64">
-                <div class="bg-gray-800 p-4 rounded-lg mb-4">
-                    <h2 class="text-xl font-bold mb-2">Stats</h2>
-                    <p>Score: <span id="score">0</span></p>
-                    <p>Level: <span id="level">1</span></p>
-                    <p>Primeagems: <span id="gems">0</span></p>
+                <div class="game-border p-4 rounded-lg mb-4 bg-light-bg dark:bg-dark-bg">
+                    <h2 class="text-xl font-bold mb-2 game-text">Stats</h2>
+                    <p class="game-text">Score: <span id="score">0</span></p>
+                    <p class="game-text">Level: <span id="level">1</span></p>
+                    <p class="game-text">Primeagems: <span id="gems">0</span></p>
                 </div>
 
                 <!-- Store -->
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <h2 class="text-xl font-bold mb-2">Store</h2>
+                <div class="game-border p-4 rounded-lg bg-light-bg dark:bg-dark-bg">
+                    <h2 class="text-xl font-bold mb-2 game-text">Store</h2>
                     <div class="space-y-2">
-                        <button id="speedBoostBtn" class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="speedBoostBtn" class="w-full bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed game-text text-white transform hover:scale-105 transition-transform">
                             Speed Boost (100 💎)
                         </button>
-                        <button id="doublePointsBtn" class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button id="doublePointsBtn" class="w-full bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed game-text text-white transform hover:scale-105 transition-transform">
                             Double Points (200 💎)
                         </button>
                     </div>
@@ -129,16 +146,16 @@
         </div>
 
         <!-- Leaderboard -->
-        <div class="mt-8 bg-gray-800 p-4 rounded-lg">
-            <h2 class="text-xl font-bold mb-4">Top Players</h2>
-            <div id="leaderboard" class="space-y-2">
-                <div class="flex justify-between items-center p-2 bg-gray-700 rounded">
-                    <span class="font-bold">👑 THEPRIMEAGEN</span>
-                    <span class="text-purple-400">SUPREME OVERLORD</span>
+        <div class="mt-8 game-border p-4 rounded-lg bg-light-bg dark:bg-dark-bg">
+            <h2 class="text-xl font-bold mb-4 game-text">Top Players</h2>
+            <div id="leaderboard" class="space-y-2 game-text">
+                <div class="flex justify-between items-center p-2 bg-purple-500 dark:bg-purple-700 rounded transform hover:scale-105 transition-transform">
+                    <span class="font-bold text-white">👑 THEPRIMEAGEN</span>
+                    <span class="text-yellow-300 dark:text-yellow-200">SUPREME OVERLORD</span>
                 </div>
-                <div class="flex justify-between items-center p-2 bg-gray-700 rounded">
-                    <span class="font-bold">🛡️ TANN2019</span>
-                    <span class="text-purple-400">MASTER MAINTAINER</span>
+                <div class="flex justify-between items-center p-2 bg-purple-500 dark:bg-purple-700 rounded transform hover:scale-105 transition-transform">
+                    <span class="font-bold text-white">🛡️ TANN2019</span>
+                    <span class="text-yellow-300 dark:text-yellow-200">MASTER MAINTAINER</span>
                 </div>
                 <div class="flex justify-between items-center p-2 bg-gray-700 rounded">
                     <span class="font-bold">⚔️ RICDEH96</span>
@@ -166,7 +183,7 @@
                 </div>
             </div>
             <!-- ThePrimeagen ASCII Art -->
-            <div class="mt-4 text-center text-xs font-mono text-purple-400">
+            <div class="mt-4 text-center text-lg font-mono text-purple-600 dark:text-purple-400 game-text transform hover:scale-105 transition-transform">
                 <div class="whitespace-pre">
   +-----------------------------------------+
   |              ThePrimeagen               |
