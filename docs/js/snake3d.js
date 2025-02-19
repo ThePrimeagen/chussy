@@ -11,6 +11,11 @@ class Snake3D {
             throw new Error('THREE.SVGLoader is required');
         }
         
+        // Initialize clock for frame rate control
+        this.clock = new THREE.Clock();
+        this.targetFrameRate = 60;
+        this.frameInterval = 1 / this.targetFrameRate;
+        
         // Initialize scene and renderer
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
@@ -79,25 +84,47 @@ class Snake3D {
                 food: 0x4caf50   // Green
             };
             
-            this.headMaterial = this.createMaterialWithFallback(
-                colors.head,
-                await this.cheeseLoader.loadTexture('swiss')
-            );
+            // Create initial materials with fallback colors
+            this.headMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.head,
+                transparent: true,
+                opacity: 0.9
+            });
             
-            this.bodyMaterial = this.createMaterialWithFallback(
-                colors.body,
-                await this.cheeseLoader.loadTexture('cheddar')
-            );
+            this.bodyMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.body,
+                transparent: true,
+                opacity: 0.9
+            });
             
-            this.tailMaterial = this.createMaterialWithFallback(
-                colors.tail,
-                await this.cheeseLoader.loadTexture('gouda')
-            );
+            this.tailMaterial = new THREE.MeshPhongMaterial({ 
+                color: colors.tail,
+                transparent: true,
+                opacity: 0.9
+            });
             
-            this.foodMaterial = this.createMaterialWithFallback(
-                colors.food,
-                await this.cheeseLoader.loadTexture('cheezus')
-            );
+            this.foodMaterial = new THREE.MeshPhongMaterial({
+                color: colors.food,
+                transparent: true,
+                opacity: 0.9
+            });
+            
+            // Load textures asynchronously and update materials if successful
+            try {
+                const [swiss, cheddar, gouda, cheezus] = await Promise.all([
+                    this.cheeseLoader.loadTexture('swiss'),
+                    this.cheeseLoader.loadTexture('cheddar'),
+                    this.cheeseLoader.loadTexture('gouda'),
+                    this.cheeseLoader.loadTexture('cheezus')
+                ]);
+                
+                if (swiss) this.headMaterial.map = swiss;
+                if (cheddar) this.bodyMaterial.map = cheddar;
+                if (gouda) this.tailMaterial.map = gouda;
+                if (cheezus) this.foodMaterial.map = cheezus;
+            } catch (error) {
+                console.warn('Failed to load textures, using fallback colors:', error);
+            }
             
             // Create initial snake segment
             const segment = this.createSegment('head', this.direction);
