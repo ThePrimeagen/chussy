@@ -73,14 +73,38 @@ class Snake3D {
         this.animate();
     }
     
-    // Create a new segment with the appropriate cheese texture
-    createSegment(type = 'body') {
+    // Create a new segment with the appropriate cheese texture and rotation
+    createSegment(type = 'body', direction = new THREE.Vector3(1, 0, 0)) {
         const material = type === 'head' ? this.headMaterial.clone() :
                         type === 'tail' ? this.tailMaterial.clone() :
                         this.bodyMaterial.clone();
         
         const segment = new THREE.Mesh(this.snakeGeometry, material);
+        
+        // Apply rotation based on direction
+        const angle = Math.atan2(direction.y, direction.x);
+        segment.rotation.z = angle;
+        
         return segment;
+    }
+    
+    // Update segment rotations based on movement
+    updateSegmentRotations() {
+        if (this.segments.length === 0) return;
+        
+        // Update head rotation
+        const headDirection = this.direction.clone();
+        this.segments[0].rotation.z = Math.atan2(headDirection.y, headDirection.x);
+        
+        // Update body and tail rotations based on their relative positions
+        for (let i = 1; i < this.segments.length; i++) {
+            const curr = this.segments[i].position;
+            const prev = this.segments[i-1].position;
+            const direction = new THREE.Vector3()
+                .subVectors(prev, curr)
+                .normalize();
+            this.segments[i].rotation.z = Math.atan2(direction.y, direction.x);
+        }
     }
 
     // Calculate distance between two points in hyperbolic space
@@ -147,15 +171,10 @@ class Snake3D {
         this.position.add(this.direction.multiplyScalar(this.speed));
         const hyperbolicPos = this.applyHyperbolicTransform(this.position);
         
-        // Update rotations
-        this.updateRotation();
-        
         // Update snake segments
         if (this.segments.length === 0) {
-            const segment = new THREE.Mesh(this.snakeGeometry, this.snakeMaterial.clone());
-            segment.material.map = this.headTexture;
+            const segment = this.createSegment('head', this.direction);
             segment.position.copy(hyperbolicPos);
-            segment.rotation.z = this.currentRotation;
             this.segments.push(segment);
             this.scene.add(segment);
         } else {
@@ -164,22 +183,13 @@ class Snake3D {
                 const pos = this.segments[i-1].position.clone();
                 const hyperbolicPos = this.applyHyperbolicTransform(pos);
                 this.segments[i].position.copy(hyperbolicPos);
-                
-                // Update segment textures and rotations
-                const material = this.segments[i].material;
-                if (i === this.segments.length - 1) {
-                    material.map = this.tailTexture;
-                } else {
-                    material.map = this.bodyTexture;
-                }
-                material.needsUpdate = true;
             }
             
-            // Update head position and rotation
+            // Update head position
             this.segments[0].position.copy(hyperbolicPos);
-            this.segments[0].rotation.z = this.currentRotation;
-            this.segments[0].material.map = this.headTexture;
-            this.segments[0].material.needsUpdate = true;
+            
+            // Update all segment rotations based on movement direction
+            this.updateSegmentRotations();
         }
         
         // Update hyperbolic grid rotation for visual effect
