@@ -4,9 +4,8 @@ async function initGame() {
         // Get canvas element
         const canvas = document.getElementById('gameCanvas');
         
-        // Initialize 3D game
-        window.game = new Snake3D(canvas);
-        await window.game.init();
+        // Initialize 2D game
+        window.game = new Snake2D(canvas);
         
         // Setup store functionality
         setupStore();
@@ -133,8 +132,8 @@ const DIRECTION_CHANGE_DELAY = 50;
 // Initialize game when all scripts are loaded
 async function initializeGame() {
     try {
-        if (typeof Snake3D === 'undefined') {
-            throw new Error('Snake3D not loaded. Please check script loading order.');
+        if (typeof Snake2D === 'undefined') {
+            throw new Error('Snake2D not loaded. Please check script loading order.');
         }
         
         // Get canvas element
@@ -143,9 +142,8 @@ async function initializeGame() {
             throw new Error('Game canvas not found');
         }
         
-        // Initialize 3D game
-        window.game = new Snake3D(canvas);
-        await window.game.init();
+        // Initialize 2D game
+        window.game = new Snake2D(canvas);
         
         // Setup game functionality
         setupStore();
