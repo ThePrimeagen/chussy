@@ -95,7 +95,6 @@
         let nextDirection = 'right';
         let lastDirectionChange = Date.now();
         let directionQueue = [];
-        let snakeBot = new SnakeBot({ snake, food, direction, directionQueue, canvas });
         let score = 0;
         let level = 1;
         let gems = 0;
@@ -314,6 +313,15 @@
             }
         });
 
+        // Initialize bot and start game
+        window.snakeBot = new SnakeBot({ 
+            snake, 
+            food, 
+            direction, 
+            directionQueue, 
+            canvas 
+        });
+        
         // Start game
         initGame();
         updateStoreButtons();
