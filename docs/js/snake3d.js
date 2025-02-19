@@ -98,11 +98,8 @@ class Snake3D {
         if (this.segments.length === 0) return;
         
         // Update head rotation based on movement direction
-        if (this.direction.z !== 0) {
-            this.segments[0].rotation.z = this.direction.z > 0 ? Math.PI / 2 : -Math.PI / 2;
-        } else {
-            this.segments[0].rotation.z = this.direction.x < 0 ? Math.PI : 0;
-        }
+        const headRotation = this.calculateRotation(this.direction);
+        this.segments[0].rotation.z = headRotation;
         
         // Update body and tail rotations based on relative positions
         for (let i = 1; i < this.segments.length; i++) {
@@ -112,13 +109,21 @@ class Snake3D {
                 .subVectors(prev, curr)
                 .normalize();
             
-            // Apply rotation based on movement direction
-            if (direction.z !== 0) {
-                this.segments[i].rotation.z = direction.z > 0 ? Math.PI / 2 : -Math.PI / 2;
-            } else {
-                this.segments[i].rotation.z = direction.x < 0 ? Math.PI : 0;
-            }
+            // Apply same rotation logic to all segments
+            this.segments[i].rotation.z = this.calculateRotation(direction);
         }
+    }
+    
+    // Calculate rotation angle based on direction
+    calculateRotation(direction) {
+        if (direction.z < 0) { // UP
+            return -Math.PI / 2; // -90 degrees
+        } else if (direction.z > 0) { // DOWN
+            return Math.PI / 2;  // 90 degrees
+        } else if (direction.x < 0) { // LEFT
+            return Math.PI;      // 180 degrees
+        }
+        return 0;               // RIGHT: 0 degrees
     }
 
     // Calculate distance between two points in hyperbolic space
