@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kyoto Snake Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="ml_button.js"></script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -66,6 +67,10 @@
     </div>
 
     <script>
+        // WebSocket setup
+        const socket = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
+        window.socket = socket; // Make socket globally available for ML button
+
         // Game state
         let snake = [{x: 10, y: 10}];
         let food = {x: 15, y: 15};
@@ -189,11 +194,19 @@
 
         // Event listeners
         document.addEventListener('keydown', (e) => {
+            let newDirection;
             switch(e.key) {
-                case 'ArrowUp': if (direction !== 'down') direction = 'up'; break;
-                case 'ArrowDown': if (direction !== 'up') direction = 'down'; break;
-                case 'ArrowLeft': if (direction !== 'right') direction = 'left'; break;
-                case 'ArrowRight': if (direction !== 'left') direction = 'right'; break;
+                case 'ArrowUp': if (direction !== 'down') newDirection = 'up'; break;
+                case 'ArrowDown': if (direction !== 'up') newDirection = 'down'; break;
+                case 'ArrowLeft': if (direction !== 'right') newDirection = 'left'; break;
+                case 'ArrowRight': if (direction !== 'left') newDirection = 'right'; break;
+            }
+            if (newDirection) {
+                direction = newDirection;
+                socket.send(JSON.stringify({
+                    action: 'direction',
+                    direction: newDirection
+                }));
             }
         });
 
