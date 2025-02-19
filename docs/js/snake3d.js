@@ -16,6 +16,10 @@ class Snake3D {
         this.camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         
+        // Initialize death counter for autoplay
+        this.deathCount = 0;
+        this.autoplayEnabled = false;
+        
         // Initialize properties
         this.segments = [];
         this.snakeGeometry = new THREE.BoxGeometry(1, 1, 0.2);
@@ -232,6 +236,11 @@ class Snake3D {
     update() {
         if (!this.segments || !this.scene) return;
         
+        // Handle autoplay if enabled
+        if (this.autoplayEnabled) {
+            this.handleBotMove();
+        }
+        
         // Create a copy of direction for position update to avoid modifying the original
         const moveDir = this.direction.clone().multiplyScalar(this.speed);
         this.position.add(moveDir);
@@ -240,6 +249,10 @@ class Snake3D {
         // Check collisions
         const collision = this.checkCollision(this.position);
         if (collision === 'self') {
+            this.deathCount++;
+            if (this.deathCount >= 5) {
+                this.autoplayEnabled = true;
+            }
             try {
                 const sound = document.getElementById('vineBoomSound');
                 if (sound) {
@@ -280,7 +293,7 @@ class Snake3D {
     }
     
     handleInput(key) {
-        if (!key) return;
+        if (!key || this.autoplayEnabled) return;
         
         const dir = new THREE.Vector3();
         dir.copy(this.direction);
@@ -326,6 +339,33 @@ class Snake3D {
         dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yRotation);
         this.direction.copy(dir.normalize());
     }
+
+    handleBotMove() {
+        if (!this.food) return;
+        
+        const foodPos = this.food.position;
+        const snakePos = this.position;
+        
+        // Calculate direction to food
+        const dirToFood = new THREE.Vector3()
+            .subVectors(foodPos, snakePos)
+            .normalize();
+        
+        // Avoid self-collision
+        for (const segment of this.segments) {
+            const dirToSegment = new THREE.Vector3()
+                .subVectors(segment.position, snakePos)
+                .normalize();
+            if (dirToSegment.dot(dirToFood) > 0.9) {
+                // Too close to segment, turn perpendicular
+                dirToFood.cross(new THREE.Vector3(0, 1, 0));
+            }
+        }
+        
+        // Update direction based on food position
+        this.direction.copy(dirToFood);
+    }
+
 
     reset() {
         // Reset position and rotation
