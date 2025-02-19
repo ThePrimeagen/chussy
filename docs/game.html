@@ -52,11 +52,11 @@
     <audio id="vineBoomSound" src="sounds/vine-boom.mp3" preload="auto"></audio>
     
     <!-- Load game scripts in correct order -->
-    <script src="js/cheese-loader.js"></script>
-    <script src="js/snake3d.js"></script>
-    <script src="js/game-init.js"></script>
-    <script src="js/auto_refresh.js"></script>
-    <script src="js/ml_button.js"></script>
+    <script defer src="js/cheese-loader.js"></script>
+    <script defer src="js/snake3d.js"></script>
+    <script defer src="js/game-init.js"></script>
+    <script defer src="js/auto_refresh.js"></script>
+    <script defer src="js/ml_button.js"></script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -66,30 +66,9 @@
         .animate-flashy {
             animation: flashy 0.5s infinite;
         }
-        @keyframes rickroll {
-            0% { content: "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"; }
-            20% { content: "⠀⠀⠀⠀⠀⠀⢀⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⠀⠀⠀⠀⠀⠀⠀"; }
-            40% { content: "⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀"; }
-            60% { content: "⠀⠀⠀⣠⣿⣿⣿⣿⠿⠋⠉⠀⠀⠀⠉⠙⠿⣿⣿⣿⣿⣿⣦⠀⠀⠀⠀"; }
-            80% { content: "⠀⠀⣼⣿⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣿⣿⣿⣧⠀⠀⠀"; }
-            100% { content: "⠀⣼⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣧⠀⠀"; }
-        }
-        .rickroll-bg::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            font-family: monospace;
-            white-space: pre;
-            color: #444;
-            z-index: -1;
-            animation: rickroll 2s infinite;
-        }
         .game-container {
             position: relative;
-            background-color: #87CEEB;
+            background-color: #1a1a2e;
             border-radius: 8px;
             padding: 16px;
         }
