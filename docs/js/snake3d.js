@@ -82,8 +82,13 @@ class Snake3D {
         const segment = new THREE.Mesh(this.snakeGeometry, material);
         
         // Apply rotation based on direction
-        const angle = Math.atan2(direction.y, direction.x);
-        segment.rotation.z = angle;
+        if (direction.z !== 0) {
+            // Handle up/down rotation
+            segment.rotation.z = direction.z > 0 ? Math.PI / 2 : -Math.PI / 2;
+        } else {
+            // Handle left/right rotation
+            segment.rotation.z = direction.x < 0 ? Math.PI : 0;
+        }
         
         return segment;
     }
@@ -92,18 +97,27 @@ class Snake3D {
     updateSegmentRotations() {
         if (this.segments.length === 0) return;
         
-        // Update head rotation
-        const headDirection = this.direction.clone();
-        this.segments[0].rotation.z = Math.atan2(headDirection.y, headDirection.x);
+        // Update head rotation based on movement direction
+        if (this.direction.z !== 0) {
+            this.segments[0].rotation.z = this.direction.z > 0 ? Math.PI / 2 : -Math.PI / 2;
+        } else {
+            this.segments[0].rotation.z = this.direction.x < 0 ? Math.PI : 0;
+        }
         
-        // Update body and tail rotations based on their relative positions
+        // Update body and tail rotations based on relative positions
         for (let i = 1; i < this.segments.length; i++) {
             const curr = this.segments[i].position;
             const prev = this.segments[i-1].position;
             const direction = new THREE.Vector3()
                 .subVectors(prev, curr)
                 .normalize();
-            this.segments[i].rotation.z = Math.atan2(direction.y, direction.x);
+            
+            // Apply rotation based on movement direction
+            if (direction.z !== 0) {
+                this.segments[i].rotation.z = direction.z > 0 ? Math.PI / 2 : -Math.PI / 2;
+            } else {
+                this.segments[i].rotation.z = direction.x < 0 ? Math.PI : 0;
+            }
         }
     }
 
