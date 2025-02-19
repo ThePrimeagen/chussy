@@ -89,8 +89,10 @@ function setupEventListeners() {
         // Theme toggle
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
+            themeToggle.addEventListener('click', (event) => {
                 try {
+                    if (!event) return;
+                    event.preventDefault();
                     const isDark = document.documentElement.classList.toggle('dark');
                     localStorage.setItem('theme', isDark ? 'dark' : 'light');
                 } catch (error) {
@@ -115,8 +117,10 @@ function setupEventListeners() {
         // Restart button
         const restartBtn = document.getElementById('restartBtn');
         if (restartBtn) {
-            restartBtn.addEventListener('click', () => {
+            restartBtn.addEventListener('click', (event) => {
                 try {
+                    if (!event) return;
+                    event.preventDefault();
                     if (window.game && typeof window.game.reset === 'function') {
                         window.game.reset();
                         const overlay = document.getElementById('overlay');
