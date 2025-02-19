@@ -281,7 +281,12 @@ class Snake3D {
     }
     
     animate() {
-        if (!this.scene || !this.renderer || !this.camera) return;
+        if (!this.scene || !this.renderer || !this.camera) {
+            const error = new Error('Required components not initialized');
+            console.error('Failed to render scene:', error);
+            document.getElementById('overlay').classList.remove('hidden');
+            return;
+        }
         
         // Control frame rate
         const delta = this.clock.getDelta();
@@ -369,9 +374,18 @@ class Snake3D {
         } else {
             // Update positions with hyperbolic transform
             for (let i = this.segments.length - 1; i > 0; i--) {
-                const pos = this.segments[i-1].position.clone();
-                const hyperbolicPos = this.applyHyperbolicTransform(pos);
-                this.segments[i].position.copy(hyperbolicPos);
+                const prevSegment = this.segments[i-1];
+                if (prevSegment && prevSegment.position) {
+                    const pos = new THREE.Vector3(
+                        prevSegment.position.x,
+                        prevSegment.position.y,
+                        prevSegment.position.z
+                    );
+                    const hyperbolicPos = this.applyHyperbolicTransform(pos);
+                    if (this.segments[i] && this.segments[i].position) {
+                        this.segments[i].position.copy(hyperbolicPos);
+                    }
+                }
             }
             
             // Update head position
