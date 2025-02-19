@@ -191,15 +191,35 @@
             ctx.fillStyle = '#1a1a1a';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw snake
-            ctx.fillStyle = '#9333ea';
-            snake.forEach(segment => {
-                ctx.fillRect(segment.x * 20, segment.y * 20, 18, 18);
+            // Draw snake with ASCII-style characters
+            ctx.font = '20px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Draw snake segments
+            snake.forEach((segment, index) => {
+                let char;
+                if (index === 0) {
+                    // Head is 'D'
+                    char = 'D';
+                } else if (index === snake.length - 1) {
+                    // Tail is '8'
+                    char = '8';
+                } else {
+                    // Body is '='
+                    char = '=';
+                }
+                
+                ctx.fillStyle = '#9333ea';
+                ctx.fillText(char, segment.x * 20 + 10, segment.y * 20 + 10);
             });
 
             // Draw food
             ctx.fillStyle = '#ef4444';
-            ctx.fillRect(food.x * 20, food.y * 20, 18, 18);
+            ctx.font = '20px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('o', food.x * 20 + 10, food.y * 20 + 10);
         }
 
         // Update UI elements
