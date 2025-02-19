@@ -63,16 +63,6 @@
         .animate-flashy {
             animation: flashy 0.5s infinite;
         }
-                const speedBoostBtn = document.getElementById('speedBoostBtn');
-                const doublePointsBtn = document.getElementById('doublePointsBtn');
-                
-                function updateStoreButtons() {
-                    speedBoostBtn.disabled = window.game.gems < SPEED_BOOST_COST || window.game.speedBoostActive;
-                    doublePointsBtn.disabled = window.game.gems < DOUBLE_POINTS_COST || window.game.pointMultiplier > 1;
-                }
-                
-                speedBoostBtn.addEventListener('click', () => {
-                    if (window.game.gems >= SPEED_BOOST_COST && !window.game.speedBoostActive) {
                         window.game.gems -= SPEED_BOOST_COST;
                         window.game.speedBoostActive = true;
                         window.game.speed = Math.max(0.05, window.game.speed - 0.03);
@@ -91,23 +81,7 @@
                 // Event listeners
                 document.addEventListener('keydown', (e) => {
                     window.game.handleInput(e.key.toLowerCase());
-                });
-                
-                document.getElementById('restartBtn').addEventListener('click', () => {
-                    window.game.reset();
-                    document.getElementById('overlay').classList.add('hidden');
-                });
-                
-                document.getElementById('themeToggle').addEventListener('click', () => {
     </style>
-                
-                // Start game
-                updateUI();
-            } catch (error) {
-                console.error('Failed to initialize game:', error);
-                const overlay = document.getElementById('overlay');
-                const message = document.createElement('div');
-                message.textContent = 'Failed to load game. Please refresh the page.';
                 message.classList.add('text-red-500', 'text-xl', 'font-bold');
                 overlay.querySelector('.text-center').prepend(message);
                 overlay.classList.remove('hidden');
