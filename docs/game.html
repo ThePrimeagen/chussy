@@ -49,15 +49,24 @@
     <!-- Load dependencies first -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
-    <audio id="vineBoomSound" src="sounds/vine-boom.mp3" preload="auto"></audio>
     
-    <!-- Load game scripts in correct order -->
     <!-- Load game scripts in correct order -->
     <script src="js/cheese-loader.js"></script>
     <script src="js/snake3d.js"></script>
     <script src="js/game-init.js"></script>
     <script src="js/auto_refresh.js"></script>
     <script src="js/ml_button.js"></script>
+    
+    <!-- Initialize game -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof Snake3D === 'undefined') {
+                console.error('Snake3D not loaded. Please check script loading order.');
+                return;
+            }
+            tryInitialize();
+        });
+    </script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -94,6 +103,10 @@
         <div class="flex justify-center gap-8">
             <!-- 3D Game Canvas -->
             <div class="relative">
+                <div id="clock" class="absolute top-2 right-2 text-xl font-mono cursor-pointer hover:text-purple-500 transition-colors"></div>
+                <button id="startBtn" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-500 px-8 py-4 rounded-lg hover:bg-purple-600 text-white text-2xl font-bold shadow-lg animate-pulse z-10">
+                    Start Game
+                </button>
                 <canvas id="gameCanvas" width="600" height="600" class="game-border rounded-lg bg-light-bg dark:bg-dark-bg"></canvas>
                 <div class="absolute top-4 left-4 game-text text-light-text dark:text-dark-text font-mono">
                     Controls: WASD/Arrow Keys - Move | Q/E - Roll | R/F - Up/Down

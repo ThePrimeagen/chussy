@@ -182,33 +182,47 @@ class Snake3D {
 
     // Check for collisions in hyperbolic space
     checkCollision(position) {
-        if (!position || !this.food || !this.scene) {
+        if (!position || !this.food || !this.scene || !this.segments || this.segments.length === 0) {
             console.warn('Cannot check collision: missing required components');
             return null;
         }
         
         try {
             const hyperbolicPos = this.applyHyperbolicTransform(position);
+            if (!hyperbolicPos) {
+                console.warn('Failed to transform position');
+                return null;
+            }
             
             // Check food collision
-            if (this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
-            this.score += 10 * this.pointMultiplier;
-            this.gems++;
-            
-            // Add new segment
-            const lastSegment = this.segments[this.segments.length - 1];
-            const newSegment = this.createSegment('body', this.direction);
-            newSegment.position.copy(lastSegment.position);
-            this.segments.push(newSegment);
-            this.scene.add(newSegment);
-            
-            this.spawnFood();
+            if (this.food.position && this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
+                this.score += 10 * this.pointMultiplier;
+                this.gems++;
+                
+                // Add new segment
+                const lastSegment = this.segments[this.segments.length - 1];
+                if (!lastSegment || !lastSegment.position) {
+                    console.warn('Invalid last segment');
+                    return null;
+                }
+                
+                const newSegment = this.createSegment('body', this.direction);
+                if (!newSegment) {
+                    console.warn('Failed to create new segment');
+                    return null;
+                }
+                
+                newSegment.position.copy(lastSegment.position);
+                this.segments.push(newSegment);
+                this.scene.add(newSegment);
+                
+                this.spawnFood();
                 return 'food';
             }
             
             // Check self collision
             if (this.segments.length > 1 && this.segments.slice(1).some(segment => 
-                this.distanceInHyperbolicSpace(hyperbolicPos, segment.position) < 0.5)) {
+                segment && segment.position && this.distanceInHyperbolicSpace(hyperbolicPos, segment.position) < 0.5)) {
                 return 'self';
             }
             return null;
