@@ -98,10 +98,22 @@ const DOUBLE_POINTS_COST = 200;
 const DIRECTION_CHANGE_DELAY = 50;
 
 // Initialize game when all scripts are loaded
-window.addEventListener('load', () => {
-    if (typeof Snake3D === 'undefined') {
-        console.error('Snake3D not loaded. Please check script loading order.');
-        return;
+window.addEventListener('load', async () => {
+    try {
+        if (typeof Snake3D === 'undefined') {
+            console.error('Snake3D not loaded. Please check script loading order.');
+            return;
+        }
+        await initGame();
+    } catch (error) {
+        console.error('Failed to initialize game:', error);
+        const overlay = document.getElementById('overlay');
+        if (overlay) {
+            const message = document.createElement('div');
+            message.textContent = 'Failed to load game. Please refresh the page.';
+            message.classList.add('text-red-500', 'text-xl', 'font-bold');
+            overlay.querySelector('.text-center')?.prepend(message);
+            overlay.classList.remove('hidden');
+        }
     }
-    initGame();
 });
