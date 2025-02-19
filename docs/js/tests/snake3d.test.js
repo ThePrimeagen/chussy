@@ -181,17 +181,17 @@ describe('Snake3D', () => {
         
         // MAKE SNAKE SEGMENTS WITH PROPER POSITION AND ROTATION
         const headSegment = new THREE.Mesh(game.snakeGeometry, game.headMaterial);
-        headSegment.position = mockVector3;
-        headSegment.rotation = mockVector3;
+        headSegment.position = new MockVector3();
+        headSegment.rotation = new MockVector3();
         game.segments = [headSegment];
         
         // MAKE FOOD WITH PROPER POSITION
         game.food = new THREE.Mesh(game.snakeGeometry, game.foodMaterial);
-        game.food.position = mockVector3;
+        game.food.position = new MockVector3();
         
         // SET DIRECTION AND POSITION
         game.direction = new THREE.Vector3(1, 0, 0);
-        game.position = mockVector3;
+        game.position = new MockVector3();
     });
 
     test('constructor initializes with required dependencies', () => {
