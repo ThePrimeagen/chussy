@@ -82,6 +82,33 @@ class Snake3D {
         const segment = new THREE.Mesh(this.snakeGeometry, material);
         return segment;
     }
+
+    // Calculate distance between two points in hyperbolic space
+    distanceInHyperbolicSpace(pos1, pos2) {
+        const h1 = this.applyHyperbolicTransform(pos1);
+        const h2 = this.applyHyperbolicTransform(pos2);
+        return h1.distanceTo(h2);
+    }
+
+    // Check for collisions in hyperbolic space
+    checkCollision(position) {
+        const hyperbolicPos = this.applyHyperbolicTransform(position);
+        
+        // Check food collision
+        if (this.food && this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
+            this.score += 10 * this.pointMultiplier;
+            this.gems++;
+            this.spawnFood();
+            return 'food';
+        }
+        
+        // Check self collision
+        if (this.segments.length > 1 && this.segments.slice(1).some(segment => 
+            this.distanceInHyperbolicSpace(hyperbolicPos, segment.position) < 0.5)) {
+            return 'self';
+        }
+        return null;
+    }
     
     animate() {
         requestAnimationFrame(() => this.animate());
