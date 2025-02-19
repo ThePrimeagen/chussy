@@ -1,7 +1,7 @@
 // Auto-refresh functionality with sexy countdown
 (function() {
-    let lastActivityTime = Date.now();
-    const TIMEOUT = 30000; // 30 seconds
+    let lastKeyActivityTime = Date.now();
+    const TIMEOUT = 120000; // 2 minutes
     const COUNTDOWN_START = 5000; // Start countdown at 5 seconds
 
     // Create countdown element
@@ -25,12 +25,12 @@
     document.body.appendChild(countdownEl);
 
     function checkInactivity() {
-        const timeSinceActivity = Date.now() - lastActivityTime;
+        const timeSinceKeyActivity = Date.now() - lastKeyActivityTime;
         
-        if (timeSinceActivity >= TIMEOUT) {
+        if (timeSinceKeyActivity >= TIMEOUT) {
             window.location.reload();
-        } else if (timeSinceActivity >= TIMEOUT - COUNTDOWN_START) {
-            const remainingSeconds = Math.ceil((TIMEOUT - timeSinceActivity) / 1000);
+        } else if (timeSinceKeyActivity >= TIMEOUT - COUNTDOWN_START) {
+            const remainingSeconds = Math.ceil((TIMEOUT - timeSinceKeyActivity) / 1000);
             countdownEl.textContent = `Refreshing in ${remainingSeconds}s`;
             countdownEl.style.opacity = '1';
             
@@ -44,8 +44,8 @@
         }
     }
 
-    function updateLastActivity() {
-        lastActivityTime = Date.now();
+    function updateLastKeyActivity() {
+        lastKeyActivityTime = Date.now();
         countdownEl.style.opacity = '0';
         countdownEl.style.animation = 'none';
     }
@@ -61,8 +61,8 @@
     `;
     document.head.appendChild(style);
 
-    // Monitor user activity
-    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+    // Monitor keyboard activity only
+    ['keydown', 'keypress', 'keyup'].forEach(event => {
         document.addEventListener(event, updateLastActivity, true);
     });
 
@@ -70,5 +70,5 @@
     setInterval(checkInactivity, 100);
 
     // Initial activity timestamp
-    updateLastActivity();
+    updateLastKeyActivity();
 })();
