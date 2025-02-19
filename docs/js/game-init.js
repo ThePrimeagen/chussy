@@ -169,5 +169,43 @@ function tryInitialize() {
     }
 }
 
-// Start initialization attempts when DOM is ready
-document.addEventListener('DOMContentLoaded', tryInitialize);
+// Initialize when DOM is loaded
+function initializeOnLoad() {
+    try {
+        const startBtn = document.getElementById('startBtn');
+        const canvas = document.getElementById('gameCanvas');
+        
+        if (startBtn && canvas) {
+            canvas.classList.add('hidden');
+            startBtn.classList.remove('hidden');
+            
+            startBtn.addEventListener('click', () => {
+                startBtn.classList.add('hidden');
+                canvas.classList.remove('hidden');
+                tryInitialize();
+            });
+        } else {
+            console.error('Required game elements not found');
+        }
+    } catch (error) {
+        console.error('Failed to initialize game:', error);
+        const overlay = document.getElementById('overlay');
+        if (overlay) {
+            const message = document.createElement('div');
+            message.textContent = 'Failed to load game. Please refresh the page.';
+            message.classList.add('text-red-500', 'text-xl', 'font-bold');
+            const center = overlay.querySelector('.text-center');
+            if (center) {
+                center.prepend(message);
+                overlay.classList.remove('hidden');
+            }
+        }
+    }
+}
+
+// Add event listener with error handling
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeOnLoad);
+} else {
+    initializeOnLoad();
+}
