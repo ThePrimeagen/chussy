@@ -94,6 +94,9 @@ SUPPORTING US THROUGH NIGHT AND DAY!
 THEIR FAITH IN US SHINES OH SO BRIGHT,
 MAKING THIS PROJECT PURE DELIGHT!
 
+## 🎮 GAME ENTRY POINT
+The game is hosted at `docs/game.html` and deployed via GitHub Pages. All game-related files are in the `docs/` directory, making it the single source of truth for our glorious snake adventure!
+
 ## 👥 CHAMPIONS OF OUR NOBLE QUEST
 BEHOLD THESE HEROES, THEY'RE THE BEST:
 - THEPRIMEAGEN, OUR GUIDING LIGHT
