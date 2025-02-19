@@ -128,12 +128,7 @@
         let pointMultiplier = 1;
         let speedBoostActive = false;
         
-        // Game constants
-        const SPEED_BOOST_COST = 100;
-        const DOUBLE_POINTS_COST = 200;
-        
         // Initialize 3D game
-        const canvas = document.getElementById('gameCanvas');
         const game = new Snake3D(canvas);
         
         // Store functionality
@@ -166,11 +161,8 @@
         const socket = { send: () => {} };
         window.socket = socket;
         const DIRECTION_CHANGE_DELAY = 50; // Minimum 50ms between direction changes
-        const SPEED_BOOST_COST = 100;
-        const DOUBLE_POINTS_COST = 200;
 
         // Get DOM elements
-        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
         const levelElement = document.getElementById('level');
