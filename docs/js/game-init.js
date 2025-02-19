@@ -167,4 +167,3 @@ function tryInitialize() {
 
 // Start initialization attempts when DOM is ready
 document.addEventListener('DOMContentLoaded', tryInitialize);
-});

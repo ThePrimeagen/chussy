@@ -52,24 +52,12 @@
     <audio id="vineBoomSound" src="sounds/vine-boom.mp3" preload="auto"></audio>
     
     <!-- Load game scripts in correct order -->
-    <script>
-        // Wait for dependencies to load
-        window.addEventListener('load', () => {
-            const scripts = [
-                'js/cheese-loader.js',
-                'js/snake3d.js',
-                'js/game-init.js',
-                'js/auto_refresh.js',
-                'js/ml_button.js'
-            ];
-            
-            scripts.forEach(src => {
-                const script = document.createElement('script');
-                script.src = src;
-                document.head.appendChild(script);
-            });
-        });
-    </script>
+    <!-- Load game scripts in correct order -->
+    <script src="js/cheese-loader.js"></script>
+    <script src="js/snake3d.js"></script>
+    <script src="js/game-init.js"></script>
+    <script src="js/auto_refresh.js"></script>
+    <script src="js/ml_button.js"></script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
