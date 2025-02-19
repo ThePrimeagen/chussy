@@ -50,16 +50,11 @@ class MockVector3 {
 }
 
 const mockMaterial = {
-    clone: jest.fn().mockReturnThis()
-};
-
-const mockMaterial = {
     clone: jest.fn().mockReturnThis(),
     map: null,
     color: 0xffffff,
     transparent: true,
     opacity: 0.9
-};
 };
 
 const THREE = {
@@ -77,7 +72,6 @@ const THREE = {
         render: jest.fn(),
         domElement: document.createElement('canvas')
     })),
-    Vector3: jest.fn(() => ({ ...mockVector3 })),
     BoxGeometry: jest.fn(),
     MeshPhongMaterial: jest.fn(() => ({ ...mockMaterial })),
     Mesh: jest.fn(() => ({
