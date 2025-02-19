@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyoto Snake Game</title>
+    <title>Kyoto Snake Game 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="ml_button.js"></script>
     <script defer src="auto_refresh.js"></script>
-    <script src="ml_button.js"></script>
+    <script defer src="js/snake3d.js"></script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -16,22 +18,21 @@
         .animate-flashy {
             animation: flashy 0.5s infinite;
         }
+        #gameCanvas {
+            width: 600px;
+            height: 600px;
+            background: #000;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center mb-8 animate-flashy">🐍 Kyoto Snake Game 🐱</h1>
+        <h1 class="text-4xl font-bold text-center mb-8 animate-flashy">🐍 Kyoto Snake Game 3D 🐱</h1>
         
         <div class="flex justify-center gap-8">
             <!-- Game Canvas -->
             <div class="relative">
-                <canvas id="gameCanvas" width="600" height="600" class="border-4 border-purple-500 rounded-lg"></canvas>
-                <div id="overlay" class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden flex items-center justify-center">
-                    <div class="text-center">
-                        <h2 class="text-3xl font-bold mb-4">Game Over!</h2>
-                        <button id="restartBtn" class="bg-purple-500 px-6 py-2 rounded-lg hover:bg-purple-600">Play Again</button>
-                    </div>
-                </div>
+                <canvas id="gameCanvas"></canvas>
             </div>
 
             <!-- Game Stats -->
@@ -57,164 +58,16 @@
                 </div>
             </div>
         </div>
-
-        <!-- Leaderboard -->
-        <div class="mt-8 bg-gray-800 p-4 rounded-lg">
-            <h2 class="text-xl font-bold mb-4">Top Players</h2>
-            <div id="leaderboard" class="space-y-2">
-                <!-- Leaderboard entries will be added here -->
-            </div>
-        </div>
     </div>
 
     <script>
+        // Initialize 3D snake game
+        const canvas = document.getElementById('gameCanvas');
+        const game = new Snake3D(canvas);
+        
         // WebSocket setup
         const socket = new WebSocket(`ws://${window.location.hostname}:8000/ws`);
-        window.socket = socket; // Make socket globally available for ML button
-
-        // Game state
-        let snake = [{x: 10, y: 10}];
-        let food = {x: 15, y: 15};
-        let direction = 'right';
-        let score = 0;
-        let level = 1;
-        let gems = 0;
-        let gameSpeed = 100;
-        let gameLoop;
-        let isGameOver = false;
-
-        // Get DOM elements
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-        const levelElement = document.getElementById('level');
-        const gemsElement = document.getElementById('gems');
-        const overlay = document.getElementById('overlay');
-        const restartBtn = document.getElementById('restartBtn');
-
-        // Game initialization
-        function initGame() {
-            snake = [{x: 10, y: 10}];
-            food = getRandomPosition();
-            direction = 'right';
-            score = 0;
-            level = 1;
-            gameSpeed = 100;
-            isGameOver = false;
-            overlay.classList.add('hidden');
-            updateUI();
-            if (gameLoop) clearInterval(gameLoop);
-            gameLoop = setInterval(gameStep, gameSpeed);
-        }
-
-        // Random position generator
-        function getRandomPosition() {
-            return {
-                x: Math.floor(Math.random() * (canvas.width / 20)),
-                y: Math.floor(Math.random() * (canvas.height / 20))
-            };
-        }
-
-        // Game step
-        function gameStep() {
-            if (isGameOver) return;
-
-            // Move snake
-            const head = {...snake[0]};
-            switch(direction) {
-                case 'up': head.y--; break;
-                case 'down': head.y++; break;
-                case 'left': head.x--; break;
-                case 'right': head.x++; break;
-            }
-
-            // Check collision with walls
-            if (head.x < 0 || head.x >= canvas.width/20 || 
-                head.y < 0 || head.y >= canvas.height/20) {
-                gameOver();
-                return;
-            }
-
-            // Check collision with self
-            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
-                gameOver();
-                return;
-            }
-
-            snake.unshift(head);
-
-            // Check if food is eaten
-            if (head.x === food.x && head.y === food.y) {
-                score += 10;
-                gems++;
-                food = getRandomPosition();
-                if (score % 50 === 0) {
-                    level++;
-                    gameSpeed = Math.max(50, gameSpeed - 10);
-                    clearInterval(gameLoop);
-                    gameLoop = setInterval(gameStep, gameSpeed);
-                }
-            } else {
-                snake.pop();
-            }
-
-            updateUI();
-            draw();
-        }
-
-        // Draw game state
-        function draw() {
-            // Clear canvas
-            ctx.fillStyle = '#1a1a1a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw snake
-            ctx.fillStyle = '#9333ea';
-            snake.forEach(segment => {
-                ctx.fillRect(segment.x * 20, segment.y * 20, 18, 18);
-            });
-
-            // Draw food
-            ctx.fillStyle = '#ef4444';
-            ctx.fillRect(food.x * 20, food.y * 20, 18, 18);
-        }
-
-        // Update UI elements
-        function updateUI() {
-            scoreElement.textContent = score;
-            levelElement.textContent = level;
-            gemsElement.textContent = gems;
-        }
-
-        // Game over handler
-        function gameOver() {
-            isGameOver = true;
-            clearInterval(gameLoop);
-            overlay.classList.remove('hidden');
-        }
-
-        // Event listeners
-        document.addEventListener('keydown', (e) => {
-            let newDirection;
-            switch(e.key) {
-                case 'ArrowUp': if (direction !== 'down') newDirection = 'up'; break;
-                case 'ArrowDown': if (direction !== 'up') newDirection = 'down'; break;
-                case 'ArrowLeft': if (direction !== 'right') newDirection = 'left'; break;
-                case 'ArrowRight': if (direction !== 'left') newDirection = 'right'; break;
-            }
-            if (newDirection) {
-                direction = newDirection;
-                socket.send(JSON.stringify({
-                    action: 'direction',
-                    direction: newDirection
-                }));
-            }
-        });
-
-        restartBtn.addEventListener('click', initGame);
-
-        // Start game
-        initGame();
+        window.socket = socket;
     </script>
 </body>
 </html>
