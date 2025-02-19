@@ -92,5 +92,16 @@ document.getElementById('themeToggle').addEventListener('click', () => {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
 });
 
-// Initialize game when DOM is loaded
-document.addEventListener('DOMContentLoaded', initGame);
+// Constants
+const SPEED_BOOST_COST = 100;
+const DOUBLE_POINTS_COST = 200;
+const DIRECTION_CHANGE_DELAY = 50;
+
+// Initialize game when all scripts are loaded
+window.addEventListener('load', () => {
+    if (typeof Snake3D === 'undefined') {
+        console.error('Snake3D not loaded. Please check script loading order.');
+        return;
+    }
+    initGame();
+});
