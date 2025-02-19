@@ -10,12 +10,29 @@ class CheeseTextureLoader {
                 return this.textures.get(name);
             }
 
-            const svgData = await this.loader.loadAsync(`../assets/images/cheese/${name}.svg`);
-            const texture = new THREE.CanvasTexture(this.svgToCanvas(svgData));
+            // Try both possible paths for textures
+            let svgData;
+            try {
+                svgData = await this.loader.loadAsync(`../assets/images/cheese/${name}.svg`);
+            } catch (e) {
+                svgData = await this.loader.loadAsync(`../images/cheese/${name}.svg`);
+            }
+
+            if (!svgData) {
+                throw new Error(`Failed to load SVG data for ${name}`);
+            }
+
+            const canvas = this.svgToCanvas(svgData);
+            if (!canvas) {
+                throw new Error(`Failed to create canvas for ${name}`);
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
             this.textures.set(name, texture);
             return texture;
         } catch (error) {
-            console.warn(`Failed to load texture ${name}, using fallback`, error);
+            console.warn(`Failed to load texture ${name}, using fallback:`, error);
             return null;
         }
     }

@@ -11,6 +11,11 @@ class Snake3D {
             throw new Error('THREE.SVGLoader is required');
         }
         
+        // Initialize clock for frame rate control
+        this.clock = new THREE.Clock();
+        this.targetFrameRate = 60;
+        this.frameInterval = 1 / this.targetFrameRate;
+        
         // Initialize scene and renderer
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
@@ -48,6 +53,15 @@ class Snake3D {
         this.camera.lookAt(0, 0, 0);
     }
     
+    createMaterialWithFallback(color, texture) {
+        return new THREE.MeshPhongMaterial({ 
+            color: color || 0xffffff,
+            transparent: true,
+            opacity: 0.9,
+            map: texture
+        });
+    }
+
     async init() {
         try {
             // Setup lighting
@@ -62,35 +76,62 @@ class Snake3D {
             this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
             this.scene.add(this.hyperbolicGrid);
 
-            // Load textures
+            // Load textures with fallbacks
+            const colors = {
+                head: 0xffeb3b,  // Yellow
+                body: 0xffa726,  // Orange
+                tail: 0xf57f17,  // Dark Orange
+                food: 0x4caf50   // Green
+            };
+            
+            // Create initial materials with fallback colors
             this.headMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xffffff,
+                color: colors.head,
                 transparent: true,
-                opacity: 0.9,
-                map: await this.cheeseLoader.loadTexture('swiss')
+                opacity: 0.9
             });
             
             this.bodyMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xffffff,
+                color: colors.body,
                 transparent: true,
-                opacity: 0.9,
-                map: await this.cheeseLoader.loadTexture('cheddar')
+                opacity: 0.9
             });
             
             this.tailMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xffffff,
+                color: colors.tail,
                 transparent: true,
-                opacity: 0.9,
-                map: await this.cheeseLoader.loadTexture('gouda')
+                opacity: 0.9
             });
             
             this.foodMaterial = new THREE.MeshPhongMaterial({
-                color: 0xffffff,
+                color: colors.food,
                 transparent: true,
-                opacity: 0.9,
-                map: await this.cheeseLoader.loadTexture('cheezus')
+                opacity: 0.9
             });
             
+            // Load textures asynchronously and update materials if successful
+            try {
+                const [swiss, cheddar, gouda, cheezus] = await Promise.all([
+                    this.cheeseLoader.loadTexture('swiss'),
+                    this.cheeseLoader.loadTexture('cheddar'),
+                    this.cheeseLoader.loadTexture('gouda'),
+                    this.cheeseLoader.loadTexture('cheezus')
+                ]);
+                
+                if (swiss) this.headMaterial.map = swiss;
+                if (cheddar) this.bodyMaterial.map = cheddar;
+                if (gouda) this.tailMaterial.map = gouda;
+                if (cheezus) this.foodMaterial.map = cheezus;
+            } catch (error) {
+                console.warn('Failed to load textures, using fallback colors:', error);
+            }
+            
+            // Create initial snake segment
+            const segment = this.createSegment('head', this.direction);
+            segment.position.copy(this.position);
+            this.segments.push(segment);
+            this.scene.add(segment);
+
             // Start game
             this.spawnFood();
             this.animate();
@@ -234,6 +275,14 @@ class Snake3D {
     
     animate() {
         if (!this.scene || !this.renderer || !this.camera) return;
+        
+        // Control frame rate
+        const delta = this.clock.getDelta();
+        if (delta < this.frameInterval) {
+            setTimeout(() => this.animate(), (this.frameInterval - delta) * 1000);
+            return;
+        }
+        
         requestAnimationFrame(() => this.animate());
         this.update();
         try {
