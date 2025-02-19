@@ -75,34 +75,52 @@ function updateUI() {
 
 // Event listeners
 function setupEventListeners() {
-    // Theme toggle
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-    }
-
-    // Game controls
-    document.addEventListener('keydown', (e) => {
-        if (window.game) {
-            window.game.handleInput(e.key.toLowerCase());
-        }
-    });
-
-    // Restart button
-    const restartBtn = document.getElementById('restartBtn');
-    if (restartBtn) {
-        restartBtn.addEventListener('click', () => {
-            if (window.game) {
-                window.game.reset();
-                const overlay = document.getElementById('overlay');
-                if (overlay) {
-                    overlay.classList.add('hidden');
+    try {
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                try {
+                    const isDark = document.documentElement.classList.toggle('dark');
+                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                } catch (error) {
+                    console.error('Failed to toggle theme:', error);
                 }
+            });
+        }
+
+        // Game controls
+        const handleKeydown = (e) => {
+            try {
+                if (window.game && typeof window.game.handleInput === 'function') {
+                    window.game.handleInput(e.key.toLowerCase());
+                }
+            } catch (error) {
+                console.error('Failed to handle input:', error);
             }
-        });
+        };
+        document.removeEventListener('keydown', handleKeydown); // Remove any existing listeners
+        document.addEventListener('keydown', handleKeydown);
+
+        // Restart button
+        const restartBtn = document.getElementById('restartBtn');
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                try {
+                    if (window.game && typeof window.game.reset === 'function') {
+                        window.game.reset();
+                        const overlay = document.getElementById('overlay');
+                        if (overlay) {
+                            overlay.classList.add('hidden');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to restart game:', error);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Failed to setup event listeners:', error);
     }
 }
 
