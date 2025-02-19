@@ -1,4 +1,23 @@
 
+# 😺 MEOW MEOW MEOW (FOR CATS) 😺
+
+```
+MEOW MEOW MROW (Project Introduction)
+meow meow purr purr mrow = Kyoto Snake Game
+meow purr meow meow = Chase cheese in 3D
+mrow purr meow = Use WASD to move
+
+MEOW PURR PURR (Installation)
+meow meow = npm install
+mrow mrow = npm start
+
+MEOW MROW MEOW (Controls)
+meow = Move up
+mrow = Move down
+purr = Turn left
+mrow = Turn right
+```
+
 # 👑 MAINTAINERS OF THE REALM 👑
 
 ```
