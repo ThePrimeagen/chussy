@@ -1,1 +1,4 @@
+# Ignore everything except docs directory
 *
+!docs/
+!docs/**/*
