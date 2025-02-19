@@ -9,7 +9,7 @@ class CheeseTextureLoader {
             return this.textures.get(name);
         }
 
-        const svgData = await this.loader.loadAsync(`/assets/images/cheese/${name}.svg`);
+        const svgData = await this.loader.loadAsync(`/docs/assets/images/cheese/${name}.svg`);
         const texture = new THREE.CanvasTexture(this.svgToCanvas(svgData));
         this.textures.set(name, texture);
         return texture;

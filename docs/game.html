@@ -3,14 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyoto Snake Game</title>
+    <title>Kyoto Cheesy Chussy Extravaganza Snake Game</title>
+    <script>
+        // Check theme preference
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        light: {
+                            bg: '#ffffff',
+                            text: '#1a202c'
+                        },
+                        dark: {
+                            bg: '#1a202c',
+                            text: '#ffffff'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
     <script defer src="auto_refresh.js"></script>
-    <script src="ml_button.js"></script>
-    <script src="js/cheese-loader.js"></script>
-    <script src="js/snake3d.js"></script>
+    <script defer src="ml_button.js"></script>
+    <script defer src="js/cheese-loader.js"></script>
+    <script defer src="js/snake3d.js"></script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -49,7 +73,13 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-200">
+    <div class="fixed top-4 right-4 z-50">
+        <button id="themeToggle" class="bg-purple-500 px-4 py-2 rounded-lg hover:bg-purple-600 text-white">
+            <span class="dark:hidden">🌙</span>
+            <span class="hidden dark:inline">☀️</span>
+        </button>
+    </div>
     <div class="container mx-auto px-4 py-8">
         <!-- Ad Banner -->
         <a href="https://terminal.shop" target="_blank" class="block w-full mb-8 bg-purple-600 hover:bg-purple-700 transition-colors duration-200 rounded-lg shadow-lg overflow-hidden">
@@ -160,6 +190,15 @@
         
         // Initialize 3D game
         const game = new Snake3D(canvas);
+        game.init().catch(error => {
+            console.error('Failed to initialize game:', error);
+            const overlay = document.getElementById('overlay');
+            const message = document.createElement('div');
+            message.textContent = 'Failed to load game. Please refresh the page.';
+            message.classList.add('text-red-500', 'text-xl', 'font-bold');
+            overlay.querySelector('.text-center').prepend(message);
+            overlay.classList.remove('hidden');
+        });
         
         // Store functionality
         const speedBoostBtn = document.getElementById('speedBoostBtn');
@@ -214,6 +253,12 @@
         restartBtn.addEventListener('click', () => {
             game.reset();
             overlay.classList.add('hidden');
+        });
+
+        // Theme toggle functionality
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
 
         // Start game

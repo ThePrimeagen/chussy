@@ -1,21 +1,20 @@
 // 3D Snake Game Implementation with Hyperbolic Geometry
 class Snake3D {
     constructor(canvas) {
+        if (!canvas) {
+            throw new Error('Canvas element is required');
+        }
+        if (!window.THREE) {
+            throw new Error('THREE.js is required');
+        }
+        if (!window.THREE.SVGLoader) {
+            throw new Error('THREE.SVGLoader is required');
+        }
+        
+        // Initialize scene and renderer
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-        
-        // Setup lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 5, 5);
-        this.scene.add(ambientLight, directionalLight);
-        
-        // Setup hyperbolic grid
-        const gridGeometry = new THREE.TorusGeometry(10, 0.1, 16, 100);
-        const gridMaterial = new THREE.MeshBasicMaterial({ color: 0x444444 });
-        this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
-        this.scene.add(this.hyperbolicGrid);
         
         // Initialize properties
         this.segments = [];
@@ -43,13 +42,22 @@ class Snake3D {
         // Camera position in hyperbolic space
         this.camera.position.set(0, 15, 15);
         this.camera.lookAt(0, 0, 0);
-        
-        // Initialize game
-        this.init().catch(console.error);
     }
     
     async init() {
         try {
+            // Setup lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 5, 5);
+            this.scene.add(ambientLight, directionalLight);
+            
+            // Setup hyperbolic grid
+            const gridGeometry = new THREE.TorusGeometry(10, 0.1, 16, 100);
+            const gridMaterial = new THREE.MeshBasicMaterial({ color: 0x444444 });
+            this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
+            this.scene.add(this.hyperbolicGrid);
+
             // Load textures
             this.headMaterial = new THREE.MeshPhongMaterial({ 
                 color: 0xffffff,
@@ -84,6 +92,7 @@ class Snake3D {
             this.animate();
         } catch (error) {
             console.error('Failed to initialize game:', error);
+            throw error; // Re-throw to notify game.html
         }
     }
     
