@@ -114,6 +114,7 @@
         
         // Initialize game when DOM is loaded
         document.addEventListener('DOMContentLoaded', initGame);
+    </script>
     <style>
         @keyframes flashy {
             0% { transform: scale(1); }
@@ -275,24 +276,33 @@
                 const canvas = document.getElementById('gameCanvas');
                 
                 // Initialize 3D game
-                game = new Snake3D(canvas);
-            await game.init().catch(error => {
-            console.error('Failed to initialize game:', error);
-            const overlay = document.getElementById('overlay');
-            const message = document.createElement('div');
-            message.textContent = 'Failed to load game. Please refresh the page.';
-            message.classList.add('text-red-500', 'text-xl', 'font-bold');
-            overlay.querySelector('.text-center').prepend(message);
-            overlay.classList.remove('hidden');
-        });
-        
+                window.game = new Snake3D(canvas);
+                await window.game.init();
+                
+                // Setup store functionality
+                setupStore();
+                
+                // Start game
+                updateUI();
+            } catch (error) {
+                console.error('Failed to initialize game:', error);
+                const overlay = document.getElementById('overlay');
+                const message = document.createElement('div');
+                message.textContent = 'Failed to load game. Please refresh the page.';
+                message.classList.add('text-red-500', 'text-xl', 'font-bold');
+                overlay.querySelector('.text-center').prepend(message);
+                overlay.classList.remove('hidden');
+            }
+        }
+
         // Store functionality
-        const speedBoostBtn = document.getElementById('speedBoostBtn');
-        const doublePointsBtn = document.getElementById('doublePointsBtn');
-        
-        function updateStoreButtons() {
-            speedBoostBtn.disabled = game.gems < SPEED_BOOST_COST || game.speedBoostActive;
-            doublePointsBtn.disabled = game.gems < DOUBLE_POINTS_COST || game.pointMultiplier > 1;
+        function setupStore() {
+            const speedBoostBtn = document.getElementById('speedBoostBtn');
+            const doublePointsBtn = document.getElementById('doublePointsBtn');
+            
+            function updateStoreButtons() {
+                speedBoostBtn.disabled = window.game.gems < SPEED_BOOST_COST || window.game.speedBoostActive;
+                doublePointsBtn.disabled = window.game.gems < DOUBLE_POINTS_COST || window.game.pointMultiplier > 1;
         }
         
         speedBoostBtn.addEventListener('click', () => {
