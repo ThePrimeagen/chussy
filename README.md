@@ -16,6 +16,24 @@ meow = Move up
 mrow = Move down
 purr = Turn left
 mrow = Turn right
+
+MEOW PURR MROW (Features)
+meow meow meow = 3D hyperbolic space
+purr purr meow = Cheese textures
+mrow meow purr = Score tracking
+meow purr purr = Power-ups
+
+MROW MEOW PURR (Achievements)
+meow meow = Collect cheese (10 points)
+purr mrow = Get power-up
+meow purr = High score
+```
+
+にゃー にゃー にゃー (Japanese Cat Section)
+にゃー = 上に移動
+みゃお = 下に移動
+ぬぅ = 左に回転
+にゃぅ = 右に回転
 ```
 
 # 👑 MAINTAINERS OF THE REALM 👑
