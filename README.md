@@ -75,6 +75,10 @@ _Features:_ ✨
 
 Now, let's get cracking on this feline fromage fiesta and show the world that being unhinged is the new black! Onward to glory, my magnificent team of misfits! 🧀🐱🎩
 
+## 🌐 BEHOLD OUR FELINE GALLERY DIVINE!
+VISIT OUR CATS IN THEIR ONLINE SHRINE:
+[HTTPS://THEPRIMEAGEN.GITHUB.IO/CHUSSY/](https://theprimeagen.github.io/chussy/)
+
 ## 🛠️ BUILDING WITH MIGHT AND MAIN
 
 ```

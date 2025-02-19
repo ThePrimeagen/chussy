@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyoto Snake Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes flashy {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .animate-flashy {
+            animation: flashy 0.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8 animate-flashy">🐍 Kyoto Snake Game 🐱</h1>
+        
+        <div class="flex justify-center gap-8">
+            <!-- Game Canvas -->
+            <div class="relative">
+                <canvas id="gameCanvas" width="600" height="600" class="border-4 border-purple-500 rounded-lg"></canvas>
+                <div id="overlay" class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden flex items-center justify-center">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold mb-4">Game Over!</h2>
+                        <button id="restartBtn" class="bg-purple-500 px-6 py-2 rounded-lg hover:bg-purple-600">Play Again</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Stats -->
+            <div class="w-64">
+                <div class="bg-gray-800 p-4 rounded-lg mb-4">
+                    <h2 class="text-xl font-bold mb-2">Stats</h2>
+                    <p>Score: <span id="score">0</span></p>
+                    <p>Level: <span id="level">1</span></p>
+                    <p>Primeagems: <span id="gems">0</span></p>
+                </div>
+
+                <!-- Store -->
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <h2 class="text-xl font-bold mb-2">Store</h2>
+                    <div class="space-y-2">
+                        <button class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600">
+                            Speed Boost (100 💎)
+                        </button>
+                        <button class="w-full bg-purple-500 px-4 py-2 rounded hover:bg-purple-600">
+                            Double Points (200 💎)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const GRID_SIZE = 30;
+        const CELL_SIZE = 20;
+        let ws;
+        let gameState = null;
+
+        // Get DOM elements
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const gemsElement = document.getElementById('gems');
+        const overlay = document.getElementById('overlay');
+        const restartBtn = document.getElementById('restartBtn');
+
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:8000/ws');
+            
+            ws.onmessage = (event) => {
+                gameState = JSON.parse(event.data);
+                updateUI();
+                draw();
+                
+                if (gameState.game_over) {
+                    overlay.classList.remove('hidden');
+                }
+            };
+
+            ws.onclose = () => {
+                setTimeout(connectWebSocket, 1000);
+            };
+        }
+
+        // Draw game state
+        function draw() {
+            if (!gameState) return;
+
+            // Clear canvas
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw snake
+            ctx.fillStyle = '#9333ea';
+            gameState.snake.body.forEach(pos => {
+                ctx.fillRect(pos.x * CELL_SIZE, pos.y * CELL_SIZE, CELL_SIZE-2, CELL_SIZE-2);
+            });
+
+            // Draw food
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(
+                gameState.food.x * CELL_SIZE,
+                gameState.food.y * CELL_SIZE,
+                CELL_SIZE-2,
+                CELL_SIZE-2
+            );
+        }
+
+        // Update UI elements
+        function updateUI() {
+            if (!gameState) return;
+            scoreElement.textContent = gameState.score;
+            gemsElement.textContent = gameState.primeagems;
+        }
+
+        // Handle keyboard input
+        document.addEventListener('keydown', (e) => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+            let direction = null;
+            switch(e.key) {
+                case 'ArrowUp': direction = 'Up'; break;
+                case 'ArrowDown': direction = 'Down'; break;
+                case 'ArrowLeft': direction = 'Left'; break;
+                case 'ArrowRight': direction = 'Right'; break;
+            }
+
+            if (direction) {
+                ws.send(JSON.stringify({
+                    action: 'direction',
+                    direction
+                }));
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+            connectWebSocket();
+        });
+
+        // Start game
+        connectWebSocket();
+    </script>
+</body>
+</html>
