@@ -82,6 +82,9 @@
         </div>
     </div>
 
+    <!-- Load sound effects -->
+    <audio id="vineBoomSound" src="https://www.myinstants.com/media/sounds/vine-boom.mp3" preload="auto"></audio>
+
     <script>
         // Game runs entirely client-side
         const socket = { send: () => {} }; // Noop for ML button compatibility
@@ -205,22 +208,34 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // Draw snake segments
+            // Draw snake segments with rotation
             snake.forEach((segment, index) => {
                 let char;
                 if (index === 0) {
-                    // Head is 'D'
+                    // Head is 'D' with rotation
                     char = 'D';
+                    ctx.save();
+                    ctx.translate(segment.x * 20 + 10, segment.y * 20 + 10);
+                    switch(direction) {
+                        case 'up': ctx.rotate(-Math.PI / 2); break;
+                        case 'down': ctx.rotate(Math.PI / 2); break;
+                        case 'left': ctx.rotate(Math.PI); break;
+                        case 'right': ctx.rotate(0); break;
+                    }
+                    ctx.fillStyle = '#9333ea';
+                    ctx.fillText(char, 0, 0);
+                    ctx.restore();
                 } else if (index === snake.length - 1) {
                     // Tail is '8'
                     char = '8';
+                    ctx.fillStyle = '#9333ea';
+                    ctx.fillText(char, segment.x * 20 + 10, segment.y * 20 + 10);
                 } else {
                     // Body is '='
                     char = '=';
+                    ctx.fillStyle = '#9333ea';
+                    ctx.fillText(char, segment.x * 20 + 10, segment.y * 20 + 10);
                 }
-                
-                ctx.fillStyle = '#9333ea';
-                ctx.fillText(char, segment.x * 20 + 10, segment.y * 20 + 10);
             });
 
             // Draw food
@@ -243,6 +258,8 @@
             isGameOver = true;
             clearInterval(gameLoop);
             overlay.classList.remove('hidden');
+            // Play vine boom sound immediately
+            document.getElementById('vineBoomSound').play();
             // Auto-reload after 3 seconds
             setTimeout(() => {
                 window.location.reload();
