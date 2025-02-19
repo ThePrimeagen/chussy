@@ -213,6 +213,14 @@ class Snake3D {
         this.position.add(this.direction.multiplyScalar(this.speed));
         const hyperbolicPos = this.applyHyperbolicTransform(this.position);
         
+        // Check collisions
+        const collision = this.checkCollision(this.position);
+        if (collision === 'self') {
+            document.getElementById('vineBoomSound').play();
+            document.getElementById('overlay').classList.remove('hidden');
+            return;
+        }
+        
         // Update snake segments
         if (this.segments.length === 0) {
             const segment = this.createSegment('head', this.direction);
