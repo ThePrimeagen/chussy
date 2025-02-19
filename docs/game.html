@@ -187,6 +187,7 @@
                         gameLoop = setInterval(gameStep, gameSpeed);
                     }
                 }
+                updateBotState(); // Update bot when food position changes
             } else {
                 snake.pop();
             }
@@ -315,12 +316,24 @@
 
         // Initialize bot and start game
         window.snakeBot = new SnakeBot({ 
-            snake, 
-            food, 
-            direction, 
-            directionQueue, 
-            canvas 
+            snake,
+            food,
+            direction,
+            directionQueue,
+            canvas,
+            gameLoop,
+            gameSpeed
         });
+
+        // Update bot state when game state changes
+        const updateBotState = () => {
+            if (window.snakeBot) {
+                window.snakeBot.game.snake = snake;
+                window.snakeBot.game.food = food;
+                window.snakeBot.game.direction = direction;
+                window.snakeBot.game.gameSpeed = gameSpeed;
+            }
+        };
         
         // Start game
         initGame();
