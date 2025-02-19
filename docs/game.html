@@ -349,10 +349,14 @@
         // Update bot state when game state changes
         const updateBotState = () => {
             if (window.snakeBot) {
-                window.snakeBot.game.snake = snake;
-                window.snakeBot.game.food = food;
-                window.snakeBot.game.direction = direction;
-                window.snakeBot.game.gameSpeed = gameSpeed;
+                window.snakeBot.updateGameState({
+                    snake,
+                    food,
+                    direction,
+                    directionQueue,
+                    gameSpeed,
+                    canvas
+                });
             }
         };
         

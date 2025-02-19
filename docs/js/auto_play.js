@@ -5,6 +5,12 @@ class SnakeBot {
         this.isActive = false;
         this.lastMoveTime = Date.now();
         this.moveInterval = 200; // Move every 200ms
+        this.indicator = null;
+        
+        // Bind game methods
+        this.updateGameState = (newState) => {
+            Object.assign(this.game, newState);
+        };
     }
 
     activate() {
