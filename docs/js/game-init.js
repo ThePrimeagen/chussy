@@ -105,6 +105,9 @@ window.addEventListener('load', async () => {
             return;
         }
         await initGame();
+        
+        // Update store buttons after initialization
+        updateStoreButtons();
     } catch (error) {
         console.error('Failed to initialize game:', error);
         const overlay = document.getElementById('overlay');
