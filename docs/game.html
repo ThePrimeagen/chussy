@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kyoto Cheesy Chussy Extravaganza Snake Game</title>
     <script>
-        // Check theme preference
-        const theme = localStorage.getItem('theme') || 'light';
-        document.documentElement.classList.toggle('dark', theme === 'dark');
+        // Always start in dark mode
+        localStorage.setItem('theme', 'dark');
+        document.documentElement.classList.add('dark');
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -104,9 +104,7 @@
             <!-- 3D Game Canvas -->
             <div class="relative">
                 <div id="clock" class="absolute top-2 right-2 text-xl font-mono cursor-pointer hover:text-purple-500 transition-colors"></div>
-                <button id="startBtn" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-purple-500 px-8 py-4 rounded-lg hover:bg-purple-600 text-white text-2xl font-bold shadow-lg animate-pulse z-10">
-                    Start Game
-                </button>
+
                 <canvas id="gameCanvas" width="600" height="600" class="game-border rounded-lg bg-light-bg dark:bg-dark-bg"></canvas>
                 <div class="absolute top-4 left-4 game-text text-light-text dark:text-dark-text font-mono">
                     Controls: WASD/Arrow Keys - Move | Q/E - Roll | R/F - Up/Down
@@ -114,7 +112,7 @@
                 <div id="overlay" class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden flex items-center justify-center">
                     <div class="text-center">
                         <h2 class="text-3xl font-bold mb-4">Game Over!</h2>
-                        <button id="restartBtn" class="bg-purple-500 px-6 py-2 rounded-lg hover:bg-purple-600">Play Again</button>
+                        <div class="text-white">Restarting in 3 seconds...</div>
                     </div>
                 </div>
             </div>
