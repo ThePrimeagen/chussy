@@ -74,8 +74,14 @@
         let level = 1;
         let gems = 0;
         let gameSpeed = 100;
-        let gameLoop;
+        let lastTime = 0;
+        let deltaTime = 0;
+        let timeAccumulator = 0;
+        let animationFrame = null;
         let isGameOver = false;
+        let inputQueue = [];
+        let lastInputTime = 0;
+        const INPUT_DEBOUNCE = 50; // ms
 
         // Get DOM elements
         const canvas = document.getElementById('gameCanvas');
@@ -95,10 +101,33 @@
             level = 1;
             gameSpeed = 100;
             isGameOver = false;
+            timeAccumulator = 0;
             overlay.classList.add('hidden');
             updateUI();
-            if (gameLoop) clearInterval(gameLoop);
-            gameLoop = setInterval(gameStep, gameSpeed);
+            lastTime = performance.now();
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+            animationFrame = requestAnimationFrame(gameLoop);
+        }
+
+        // Main game loop using requestAnimationFrame
+        function gameLoop(currentTime) {
+            if (isGameOver) {
+                cancelAnimationFrame(animationFrame);
+                return;
+            }
+
+            deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+            timeAccumulator += deltaTime;
+
+            // Update game state based on accumulated time
+            while (timeAccumulator >= gameSpeed) {
+                gameStep();
+                timeAccumulator -= gameSpeed;
+            }
+
+            draw();
+            animationFrame = requestAnimationFrame(gameLoop);
         }
 
         // Random position generator
@@ -112,6 +141,11 @@
         // Game step
         function gameStep() {
             if (isGameOver) return;
+
+            // Process next input from queue
+            if (inputQueue.length > 0) {
+                direction = inputQueue.shift();
+            }
 
             // Move snake
             const head = {...snake[0]};
@@ -145,8 +179,8 @@
                 if (score % 50 === 0) {
                     level++;
                     gameSpeed = Math.max(50, gameSpeed - 10);
-                    clearInterval(gameLoop);
-                    gameLoop = setInterval(gameStep, gameSpeed);
+                    timeAccumulator = 0;
+                    lastTime = performance.now();
                 }
             } else {
                 snake.pop();
@@ -183,17 +217,35 @@
         // Game over handler
         function gameOver() {
             isGameOver = true;
-            clearInterval(gameLoop);
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            inputQueue = [];
+            lastInputTime = 0;
             overlay.classList.remove('hidden');
         }
 
         // Event listeners
         document.addEventListener('keydown', (e) => {
+            const currentTime = performance.now();
+            if (currentTime - lastInputTime < INPUT_DEBOUNCE) return;
+            lastInputTime = currentTime;
+
+            let newDirection = null;
             switch(e.key) {
-                case 'ArrowUp': if (direction !== 'down') direction = 'up'; break;
-                case 'ArrowDown': if (direction !== 'up') direction = 'down'; break;
-                case 'ArrowLeft': if (direction !== 'right') direction = 'left'; break;
-                case 'ArrowRight': if (direction !== 'left') direction = 'right'; break;
+                case 'ArrowUp': case 'w': case 'W': 
+                    if (direction !== 'down') newDirection = 'up'; break;
+                case 'ArrowDown': case 's': case 'S': 
+                    if (direction !== 'up') newDirection = 'down'; break;
+                case 'ArrowLeft': case 'a': case 'A': 
+                    if (direction !== 'right') newDirection = 'left'; break;
+                case 'ArrowRight': case 'd': case 'D': 
+                    if (direction !== 'left') newDirection = 'right'; break;
+            }
+
+            if (newDirection && inputQueue.length < 2) {
+                inputQueue.push(newDirection);
             }
         });
 
