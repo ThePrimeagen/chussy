@@ -15,6 +15,7 @@ type Players = Arc<Mutex<HashMap<String, GameState>>>;
 struct ClientMessage {
     action: String,
     direction: Option<Direction>,
+    ml_training: Option<bool>,
 }
 
 #[tokio::main]
@@ -85,6 +86,17 @@ async fn handle_ws_client(ws: warp::ws::WebSocket, players: Players, tx: broadca
                                 "direction" => {
                                     if let Some(direction) = client_msg.direction {
                                         state.snake.set_direction(direction);
+                                        if state.ml_training {
+                                            state.bot_moves.push(direction);
+                                        }
+                                    }
+                                }
+                                "toggle_ml_training" => {
+                                    if let Some(training) = client_msg.ml_training {
+                                        state.ml_training = training;
+                                        if training {
+                                            state.bot_moves.clear();
+                                        }
                                     }
                                 }
                                 _ => {}

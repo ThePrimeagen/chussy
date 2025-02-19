@@ -21,6 +21,8 @@ pub struct Snake {
     pub body: VecDeque<Position>,
     pub direction: Direction,
     pub growing: bool,
+    #[serde(skip)]
+    last_direction_change: Option<std::time::Instant>,
 }
 
 impl Snake {
@@ -31,6 +33,7 @@ impl Snake {
             body,
             direction: Direction::Right,
             growing: false,
+            last_direction_change: None,
         }
     }
 
@@ -61,7 +64,7 @@ impl Snake {
     }
 
     pub fn set_direction(&mut self, new_direction: Direction) {
-        // Prevent 180-degree turns
+        // Prevent 180-degree turns and too rapid direction changes
         let invalid_turn = match (self.direction, new_direction) {
             (Direction::Up, Direction::Down) |
             (Direction::Down, Direction::Up) |
@@ -70,8 +73,14 @@ impl Snake {
             _ => false,
         };
 
-        if !invalid_turn {
+        let now = std::time::Instant::now();
+        let can_change = self.last_direction_change
+            .map(|last| now.duration_since(last).as_millis() >= 50) // Minimum 50ms between direction changes
+            .unwrap_or(true);
+
+        if !invalid_turn && can_change {
             self.direction = new_direction;
+            self.last_direction_change = Some(now);
         }
     }
 }
@@ -83,6 +92,8 @@ pub struct GameState {
     pub score: u32,
     pub primeagems: u32,
     pub game_over: bool,
+    pub ml_training: bool,
+    pub bot_moves: Vec<Direction>,
 }
 
 impl GameState {
@@ -100,6 +111,8 @@ impl GameState {
             score: 0,
             primeagems: 0,
             game_over: false,
+            ml_training: false,
+            bot_moves: Vec::new(),
         }
     }
 
