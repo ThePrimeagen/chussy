@@ -71,34 +71,33 @@ class Snake3D {
             this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
             this.scene.add(this.hyperbolicGrid);
 
-            // Load textures
-            this.headMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.9,
-                map: await this.cheeseLoader.loadTexture('swiss')
-            });
+            // Load textures with fallbacks
+            const colors = {
+                head: 0xffeb3b,  // Yellow
+                body: 0xffa726,  // Orange
+                tail: 0xf57f17,  // Dark Orange
+                food: 0x4caf50   // Green
+            };
             
-            this.bodyMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.9,
-                map: await this.cheeseLoader.loadTexture('cheddar')
-            });
+            this.headMaterial = this.createMaterialWithFallback(
+                colors.head,
+                await this.cheeseLoader.loadTexture('swiss')
+            );
             
-            this.tailMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.9,
-                map: await this.cheeseLoader.loadTexture('gouda')
-            });
+            this.bodyMaterial = this.createMaterialWithFallback(
+                colors.body,
+                await this.cheeseLoader.loadTexture('cheddar')
+            );
             
-            this.foodMaterial = new THREE.MeshPhongMaterial({
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.9,
-                map: await this.cheeseLoader.loadTexture('cheezus')
-            });
+            this.tailMaterial = this.createMaterialWithFallback(
+                colors.tail,
+                await this.cheeseLoader.loadTexture('gouda')
+            );
+            
+            this.foodMaterial = this.createMaterialWithFallback(
+                colors.food,
+                await this.cheeseLoader.loadTexture('cheezus')
+            );
             
             // Create initial snake segment
             const segment = this.createSegment('head', this.direction);
