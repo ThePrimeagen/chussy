@@ -29,12 +29,19 @@ function setupStore() {
     const speedBoostBtn = document.getElementById('speedBoostBtn');
     const doublePointsBtn = document.getElementById('doublePointsBtn');
     
+    if (!speedBoostBtn || !doublePointsBtn) {
+        console.error('Store buttons not found');
+        return;
+    }
+    
     function updateStoreButtons() {
+        if (!window.game) return;
         speedBoostBtn.disabled = window.game.gems < SPEED_BOOST_COST || window.game.speedBoostActive;
         doublePointsBtn.disabled = window.game.gems < DOUBLE_POINTS_COST || window.game.pointMultiplier > 1;
     }
     
     speedBoostBtn.addEventListener('click', () => {
+        if (!window.game) return;
         if (window.game.gems >= SPEED_BOOST_COST && !window.game.speedBoostActive) {
             window.game.gems -= SPEED_BOOST_COST;
             window.game.speedBoostActive = true;
@@ -44,6 +51,7 @@ function setupStore() {
     });
     
     doublePointsBtn.addEventListener('click', () => {
+        if (!window.game) return;
         if (window.game.gems >= DOUBLE_POINTS_COST && window.game.pointMultiplier === 1) {
             window.game.gems -= DOUBLE_POINTS_COST;
             window.game.pointMultiplier = 2;
@@ -54,13 +62,15 @@ function setupStore() {
 
 // Update UI elements
 function updateUI() {
+    if (!window.game) return;
+    
     const scoreElement = document.getElementById('score');
     const levelElement = document.getElementById('level');
     const gemsElement = document.getElementById('gems');
     
-    scoreElement.textContent = window.game.score;
-    levelElement.textContent = window.game.level;
-    gemsElement.textContent = window.game.gems;
+    if (scoreElement) scoreElement.textContent = window.game.score;
+    if (levelElement) levelElement.textContent = window.game.level;
+    if (gemsElement) gemsElement.textContent = window.game.gems;
 }
 
 // Event listeners
