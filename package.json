@@ -1,1 +1,1 @@
-{"scripts":{"test":"jest"},"jest":{"testEnvironment":"jsdom","moduleDirectories":["node_modules","docs/js"]}}
+{"scripts":{"test":"jest"},"jest":{"testEnvironment":"jsdom","moduleDirectories":["node_modules","docs/js"]},"dependencies":{"jest":"^29.7.0"}}
