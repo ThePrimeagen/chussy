@@ -115,4 +115,57 @@ describe('Snake3D', () => {
         expect(transformed.y).toBeDefined();
         expect(transformed.z).toBeDefined();
     });
+
+    test('spawnFood creates food in valid position', () => {
+        game.spawnFood();
+        expect(game.food).toBeDefined();
+        expect(game.food.position.x).toBeDefined();
+        expect(game.food.position.y).toBeDefined();
+        expect(game.food.position.z).toBeDefined();
+    });
+
+    test('animate handles rendering errors', () => {
+        const consoleSpy = jest.spyOn(console, 'error');
+        game.renderer.render.mockImplementation(() => {
+            throw new Error('Render error');
+        });
+        game.animate();
+        expect(consoleSpy).toHaveBeenCalledWith('Failed to render scene:', expect.any(Error));
+    });
+
+    test('update handles null segments', () => {
+        game.segments = null;
+        expect(() => game.update()).not.toThrow();
+    });
+
+    test('handleInput ignores invalid keys', () => {
+        const originalDirection = { ...game.direction };
+        game.handleInput('invalid_key');
+        expect(game.direction).toEqual(originalDirection);
+    });
+
+    test('collision detection in hyperbolic space', () => {
+        game.segments = [
+            { position: { x: 0, y: 0, z: 0 } },
+            { position: { x: 1, y: 0, z: 0 } }
+        ];
+        const result = game.checkCollision({ x: 1, y: 0, z: 0 });
+        expect(result).toBe('self');
+    });
+
+    test('movement in hyperbolic space', () => {
+        game.direction = new THREE.Vector3(1, 0, 0);
+        game.speed = 0.1;
+        game.segments = [{ position: { x: 0, y: 0, z: 0 } }];
+        game.update();
+        expect(game.position.x).toBeGreaterThan(0);
+    });
+
+    test('rotation handling', () => {
+        game.handleInput('q'); // Roll left
+        expect(game.yRotation).toBeDefined();
+        game.handleInput('e'); // Roll right
+        expect(game.yRotation).toBeDefined();
+        expect(game.yRotation % (Math.PI * 2)).toBe(0); // Should complete full rotation
+    });
 });
