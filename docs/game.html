@@ -20,6 +20,33 @@
         .animate-flashy {
             animation: flashy 0.5s infinite;
         }
+        @keyframes rickroll {
+            0% { content: "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"; }
+            20% { content: "⠀⠀⠀⠀⠀⠀⢀⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⠀⠀⠀⠀⠀⠀⠀"; }
+            40% { content: "⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀"; }
+            60% { content: "⠀⠀⠀⣠⣿⣿⣿⣿⠿⠋⠉⠀⠀⠀⠉⠙⠿⣿⣿⣿⣿⣿⣦⠀⠀⠀⠀"; }
+            80% { content: "⠀⠀⣼⣿⣿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣿⣿⣿⣧⠀⠀⠀"; }
+            100% { content: "⠀⣼⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣧⠀⠀"; }
+        }
+        .rickroll-bg::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-family: monospace;
+            white-space: pre;
+            color: #444;
+            z-index: -1;
+            animation: rickroll 2s infinite;
+        }
+        .game-container {
+            position: relative;
+            background-color: #87CEEB;
+            border-radius: 8px;
+            padding: 16px;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -33,9 +60,12 @@
         <h1 class="text-4xl font-bold text-center mb-8 animate-flashy">🐍 Kyoto Snake Game 🐱</h1>
         
         <div class="flex justify-center gap-8">
-            <!-- Game Canvas -->
+            <!-- 3D Game Canvas -->
             <div class="relative">
-                <canvas id="gameCanvas" width="600" height="600" class="border-4 border-purple-500 rounded-lg"></canvas>
+                <canvas id="gameCanvas" width="600" height="600" class="border-4 border-purple-500 rounded-lg bg-[#87CEEB]"></canvas>
+                <div class="absolute top-4 left-4 text-black font-mono text-sm">
+                    Controls: WASD/Arrow Keys - Move | Q/E - Roll | R/F - Up/Down
+                </div>
                 <div id="overlay" class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden flex items-center justify-center">
                     <div class="text-center">
                         <h2 class="text-3xl font-bold mb-4">Game Over!</h2>
@@ -121,12 +151,12 @@
     <audio id="vineBoomSound" src="https://www.myinstants.com/media/sounds/vine-boom.mp3" preload="auto"></audio>
 
     <script>
-        // Game state initialization
-        let score = 0;
-        let level = 1;
-        let gems = 0;
-        let pointMultiplier = 1;
-        let speedBoostActive = false;
+        // Game constants
+        const SPEED_BOOST_COST = 100;
+        const DOUBLE_POINTS_COST = 200;
+        
+        // Get canvas element
+        const canvas = document.getElementById('gameCanvas');
         
         // Initialize 3D game
         const game = new Snake3D(canvas);
@@ -163,40 +193,17 @@
         const DIRECTION_CHANGE_DELAY = 50; // Minimum 50ms between direction changes
 
         // Get DOM elements
-        const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
         const levelElement = document.getElementById('level');
         const gemsElement = document.getElementById('gems');
         const overlay = document.getElementById('overlay');
         const restartBtn = document.getElementById('restartBtn');
 
-        // Game initialization
-        function initGame() {
-            snake = [{x: 10, y: 10}];
-            food = getRandomPosition();
-            direction = 'right';
-            score = 0;
-            level = 1;
-            gameSpeed = 100;
-            isGameOver = false;
-            overlay.classList.add('hidden');
-            updateUI();
-            if (gameLoop) clearInterval(gameLoop);
-            gameLoop = setInterval(gameStep, gameSpeed);
-        }
-
         // Update UI elements
         function updateUI() {
             scoreElement.textContent = game.score;
             levelElement.textContent = game.level;
             gemsElement.textContent = game.gems;
-        }
-
-        // Update UI elements
-        function updateUI() {
-            scoreElement.textContent = score;
-            levelElement.textContent = level;
-            gemsElement.textContent = gems;
         }
 
         // Event listeners

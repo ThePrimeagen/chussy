@@ -259,23 +259,25 @@ class Snake3D {
         switch(key) {
             case 'arrowup':
             case 'w':
-            case 'k':
                 dir.z = -1;
                 break;
             case 'arrowdown':
             case 's':
-            case 'j':
                 dir.z = 1;
                 break;
             case 'arrowleft':
             case 'a':
-            case 'h':
                 dir.x = -1;
                 break;
             case 'arrowright':
             case 'd':
-            case 'l':
                 dir.x = 1;
+                break;
+            case 'r': // Move up
+                dir.y = 1;
+                break;
+            case 'f': // Move down
+                dir.y = -1;
                 break;
             case 'q': // Roll left
                 this.yRotation -= Math.PI / 2;
@@ -288,5 +290,32 @@ class Snake3D {
         // Apply rotation
         dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yRotation);
         this.direction.copy(dir.normalize());
+    }
+
+    reset() {
+        // Reset position and rotation
+        this.position.set(0, 0, 0);
+        this.direction.set(1, 0, 0);
+        this.yRotation = 0;
+        
+        // Reset game state
+        this.score = 0;
+        this.gems = 0;
+        this.level = 1;
+        this.speedBoostActive = false;
+        this.pointMultiplier = 1;
+        
+        // Clear segments
+        this.segments.forEach(segment => this.scene.remove(segment));
+        this.segments = [];
+        
+        // Reset food
+        if (this.food) {
+            this.scene.remove(this.food);
+            this.food = null;
+        }
+        
+        // Spawn new food
+        this.spawnFood();
     }
 }
