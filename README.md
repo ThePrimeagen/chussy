@@ -1,13 +1,20 @@
 
-ONCE UPON A TIME there was a lovely princess.
-But she had an enchantment upon her of a fearful sort,
-which could only be broken by love's first kiss.
-She was locked away in a castle guarded by a terrible fire-breathing dragon.
-Many brave knights had attempted to free her from this dreadful prison,
-but none prevailed.
-She waited in the dragon's keep in the highest room of the tallest tower
-for her true love and true love's first kiss.
-Like that's ever gonna happen.
+# 👑 MAINTAINERS OF THE REALM 👑
+
+```
+╔════════════════════════════════════════╗
+║         CHAMPIONS OF THE CHUSSY        ║
+╠════════════════════════════════════════╣
+║ 👑 THEPRIMEAGEN - SUPREME OVERLORD     ║
+║ 🛡️ TANN2019 - MASTER MAINTAINER        ║
+║ ⚔️ RICDEH96 - TECH LEAD SUPREME        ║
+║ 🗡️ BARTOSZ SKEJCIK - CORE MAINTAINER   ║
+║ 🌟 TEEJ_DV - NOCTURNAL CODER          ║
+║ 🎮 DOUGDOUG - WISDOM KEEPER           ║
+║ 🧀 THECHEESAGEN - BRIE MASTER         ║
+║ 🤖 APP/DEVIN-AI - DREAM WEAVER        ║
+╚════════════════════════════════════════╝
+```
 
 [ENGLISH](README.md) | [简体中文](README.zh-CN.md)
 [ENGLISH](README.md) | [日本語](README.ja.md)
@@ -96,14 +103,3 @@ MAKING THIS PROJECT PURE DELIGHT!
 
 ## 🎮 GAME ENTRY POINT
 The game is hosted at `docs/game.html` and deployed via GitHub Pages. All game-related files are in the `docs/` directory, making it the single source of truth for our glorious snake adventure!
-
-## 👥 CHAMPIONS OF OUR NOBLE QUEST
-BEHOLD THESE HEROES, THEY'RE THE BEST:
-- THEPRIMEAGEN, OUR GUIDING LIGHT
-- TANN2019, MASTER MAINTAINER
-- RICDEH96, TECH LEAD AND CORE MAINTAINER SUPREME
-- BARTOSZ SKEJCIK, TECH LEAD AND CORE MAINTAINER
-- TEEJ_DV, WHO CODES ALL NIGHT
-- DOUGDOUG, WITH WISDOM TRUE
-- THECHEESAGEN, MASTER OF BRIE
-- APP/DEVIN-AI, MAKING DREAMS COME TRUE
