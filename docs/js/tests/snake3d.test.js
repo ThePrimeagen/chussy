@@ -49,6 +49,21 @@ class MockVector3 {
     }
 }
 
+const mockVector3Base = {
+    x: 0,
+    y: 0,
+    z: 0,
+    set: jest.fn().mockReturnThis(),
+    add: jest.fn().mockReturnThis(),
+    copy: jest.fn().mockReturnThis(),
+    clone: jest.fn().mockReturnThis(),
+    multiplyScalar: jest.fn().mockReturnThis(),
+    normalize: jest.fn().mockReturnThis(),
+    applyAxisAngle: jest.fn().mockReturnThis(),
+    subVectors: jest.fn().mockReturnThis(),
+    distanceTo: jest.fn().mockReturnValue(0)
+};
+
 const mockMaterial = {
     clone: jest.fn().mockReturnThis(),
     map: null,
@@ -82,17 +97,18 @@ const THREE = {
         render: jest.fn(),
         domElement: document.createElement('canvas')
     })),
+    Clock: jest.fn(() => new MockClock()),
     BoxGeometry: jest.fn(),
     MeshPhongMaterial: jest.fn(() => ({ ...mockMaterial })),
     Mesh: jest.fn(() => ({
-        position: { ...mockVector3 },
-        rotation: { ...mockVector3 }
+        position: new MockVector3(),
+        rotation: new MockVector3()
     })),
     AmbientLight: jest.fn(() => ({
-        position: { ...mockVector3 }
+        position: new MockVector3()
     })),
     DirectionalLight: jest.fn(() => ({
-        position: { ...mockVector3 }
+        position: new MockVector3()
     })),
     TorusGeometry: jest.fn(),
     MeshBasicMaterial: jest.fn(() => ({ ...mockMaterial })),
