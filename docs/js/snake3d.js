@@ -240,7 +240,14 @@ class Snake3D {
         // Check collisions
         const collision = this.checkCollision(this.position);
         if (collision === 'self') {
-            document.getElementById('vineBoomSound').play();
+            try {
+                const sound = document.getElementById('vineBoomSound');
+                if (sound) {
+                    sound.play().catch(console.error); // Handle autoplay restrictions
+                }
+            } catch (error) {
+                console.error('Failed to play sound:', error);
+            }
             document.getElementById('overlay').classList.remove('hidden');
             return;
         }
