@@ -3,11 +3,16 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0"
   },
   "jest": {
     "testEnvironment": "jsdom",
     "moduleDirectories": ["node_modules", "docs/js"]
+  },
+  "babel": {
+    "presets": ["@babel/preset-env"]
   }
 }
