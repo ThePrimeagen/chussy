@@ -1,4 +1,6 @@
-# Ignore everything except docs directory
+# Ignore everything except docs and github workflows
 *
 !docs/
 !docs/**/*
+!.github/
+!.github/**/*

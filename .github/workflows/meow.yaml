@@ -16,5 +16,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'MEOW MEOW 🐱'
+              body: 'MEOW MEOW 🐱 (@TheSavageCoder paid me to say this 💸)'
             })
