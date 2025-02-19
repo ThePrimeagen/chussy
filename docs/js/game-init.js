@@ -194,12 +194,13 @@ function initializeOnLoad() {
         const canvas = document.getElementById('gameCanvas');
         const clockElement = document.getElementById('clock');
         
-        if (canvas) {
-            canvas.classList.remove('hidden');
-            tryInitialize();
-        } else {
-            console.error('Required game elements not found');
+        if (!canvas) {
+            throw new Error('Required game elements not found');
         }
+        
+        // Show canvas and start game immediately
+        canvas.classList.remove('hidden');
+        tryInitialize();
         
         if (clockElement) {
             clockElement.addEventListener('click', (event) => {

@@ -182,16 +182,17 @@ class Snake3D {
         }
     }
     
-    // Calculate rotation angle based on direction
+    // Calculate rotation angle based on direction in hyperbolic space
     calculateRotation(direction) {
-        if (direction.z < 0) { // UP
-            return -Math.PI / 2; // -90 degrees
-        } else if (direction.z > 0) { // DOWN
-            return Math.PI / 2;  // 90 degrees
-        } else if (direction.x < 0) { // LEFT
-            return Math.PI;      // 180 degrees
+        // Normalize direction to handle edge cases
+        const normalizedDir = direction.clone().normalize();
+        
+        // Calculate angle based on direction components
+        if (Math.abs(normalizedDir.z) > Math.abs(normalizedDir.x)) {
+            return normalizedDir.z < 0 ? -Math.PI / 2 : Math.PI / 2;
+        } else {
+            return normalizedDir.x < 0 ? Math.PI : 0;
         }
-        return 0;               // RIGHT: 0 degrees
     }
 
     // Calculate distance between two points in hyperbolic space

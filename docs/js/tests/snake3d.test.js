@@ -139,10 +139,17 @@ const CheeseTextureLoader = jest.fn(() => ({
 
 global.THREE = window.THREE;
 global.CheeseTextureLoader = CheeseTextureLoader;
+const mockOverlay = {
+    classList: { remove: jest.fn(), add: jest.fn() }
+};
+
 global.document = {
-    getElementById: jest.fn().mockReturnValue({
-        play: jest.fn().mockResolvedValue(undefined),
-        classList: { remove: jest.fn(), add: jest.fn() }
+    getElementById: jest.fn((id) => {
+        if (id === 'overlay') return mockOverlay;
+        return {
+            play: jest.fn().mockResolvedValue(undefined),
+            classList: { remove: jest.fn(), add: jest.fn() }
+        };
     }),
     createElement: jest.fn().mockReturnValue({
         classList: { remove: jest.fn(), add: jest.fn() },
@@ -301,13 +308,22 @@ describe('Snake3D', () => {
     });
 
     test('collision detection in hyperbolic space', () => {
-        const headPos = new THREE.Vector3(0, 0, 0);
-        const bodyPos = new THREE.Vector3(1, 0, 0);
-        game.segments = [
-            { position: headPos },
-            { position: bodyPos }
+        // Setup snake segments
+        const headPos = new MockVector3(0, 0, 0);
+        const bodyPos = new MockVector3(1, 0, 0);
+        const segments = [
+            new THREE.Mesh(game.snakeGeometry, game.headMaterial),
+            new THREE.Mesh(game.snakeGeometry, game.bodyMaterial)
         ];
-        game.food = { position: new THREE.Vector3(2, 0, 0) };
+        segments[0].position.copy(headPos);
+        segments[1].position.copy(bodyPos);
+        game.segments = segments;
+        
+        // Setup food at different position
+        game.food = new THREE.Mesh(game.snakeGeometry, game.foodMaterial);
+        game.food.position.set(2, 0, 0);
+        
+        // Test collision with body segment
         const result = game.checkCollision(bodyPos);
         expect(result).toBe('self');
     });
