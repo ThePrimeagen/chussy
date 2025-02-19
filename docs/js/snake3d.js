@@ -189,9 +189,9 @@ class Snake3D {
         
         try {
             const hyperbolicPos = this.applyHyperbolicTransform(position);
-        
-        // Check food collision
-        if (this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
+            
+            // Check food collision
+            if (this.distanceInHyperbolicSpace(hyperbolicPos, this.food.position) < 0.5) {
             this.score += 10 * this.pointMultiplier;
             this.gems++;
             
@@ -203,15 +203,19 @@ class Snake3D {
             this.scene.add(newSegment);
             
             this.spawnFood();
-            return 'food';
+                return 'food';
+            }
+            
+            // Check self collision
+            if (this.segments.length > 1 && this.segments.slice(1).some(segment => 
+                this.distanceInHyperbolicSpace(hyperbolicPos, segment.position) < 0.5)) {
+                return 'self';
+            }
+            return null;
+        } catch (error) {
+            console.error('Error checking collision:', error);
+            return null;
         }
-        
-        // Check self collision
-        if (this.segments.length > 1 && this.segments.slice(1).some(segment => 
-            this.distanceInHyperbolicSpace(hyperbolicPos, segment.position) < 0.5)) {
-            return 'self';
-        }
-        return null;
     }
     
     animate() {
