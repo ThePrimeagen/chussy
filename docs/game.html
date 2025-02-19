@@ -107,7 +107,26 @@
                 terminal.shop: uWu coffee for uWu boys
             </div>
         </a>
-        <h1 class="text-4xl font-bold text-center mb-8 animate-flashy">🐍 Kyoto Snake Game 🐱</h1>
+        <h1 id="gameTitle" class="text-4xl font-bold text-center mb-8 animate-flashy">🐍 Kyoto Snake Game 🐱</h1>
+        <script>
+            const titles = [
+                "🐍 Kyoto Snake Game 🐱",
+                "🐍 京都のスネークゲーム 🐱",
+                "🐍 교토 뱀 게임 🐱",
+                "🐍 京都贪吃蛇游戏 🐱",
+                "🐍 Jeu du Serpent de Kyoto 🐱",
+                "🐍 Juego de la Serpiente de Kioto 🐱",
+                "🐍 Kyoto Schlangen-Spiel 🐱",
+                "🐍 Gioco del Serpente di Kyoto 🐱",
+                "🐍 Игра Змейка из Киото 🐱",
+                "🐍 لعبة ثعبان كيوتو 🐱"
+            ];
+            let currentTitleIndex = 0;
+            setInterval(() => {
+                currentTitleIndex = (currentTitleIndex + 1) % titles.length;
+                document.getElementById('gameTitle').textContent = titles[currentTitleIndex];
+            }, 10000);
+        </script>
         
         <div class="flex justify-center gap-8">
             <!-- Video Section -->
