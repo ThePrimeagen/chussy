@@ -48,6 +48,15 @@ class Snake3D {
         this.camera.lookAt(0, 0, 0);
     }
     
+    createMaterialWithFallback(color, texture) {
+        return new THREE.MeshPhongMaterial({ 
+            color: color || 0xffffff,
+            transparent: true,
+            opacity: 0.9,
+            map: texture
+        });
+    }
+
     async init() {
         try {
             // Setup lighting
@@ -91,6 +100,12 @@ class Snake3D {
                 map: await this.cheeseLoader.loadTexture('cheezus')
             });
             
+            // Create initial snake segment
+            const segment = this.createSegment('head', this.direction);
+            segment.position.copy(this.position);
+            this.segments.push(segment);
+            this.scene.add(segment);
+
             // Start game
             this.spawnFood();
             this.animate();
