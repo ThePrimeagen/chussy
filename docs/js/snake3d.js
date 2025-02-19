@@ -389,10 +389,12 @@ class Snake3D {
             }
             
             // Update head position
-            this.segments[0].position.copy(hyperbolicPos);
-            
-            // Update all segment rotations based on movement direction
-            this.updateSegmentRotations();
+            if (this.segments[0] && this.segments[0].position) {
+                this.segments[0].position.copy(hyperbolicPos);
+                
+                // Update all segment rotations based on movement direction
+                this.updateSegmentRotations();
+            }
         }
         
         // Update hyperbolic grid rotation for visual effect
