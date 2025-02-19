@@ -192,18 +192,36 @@ function initializeOnLoad() {
     try {
         const startBtn = document.getElementById('startBtn');
         const canvas = document.getElementById('gameCanvas');
+        const clockElement = document.getElementById('clock');
         
         if (startBtn && canvas) {
             canvas.classList.add('hidden');
             startBtn.classList.remove('hidden');
             
-            startBtn.addEventListener('click', () => {
-                startBtn.classList.add('hidden');
-                canvas.classList.remove('hidden');
-                tryInitialize();
+            startBtn.addEventListener('click', (event) => {
+                try {
+                    event.preventDefault();
+                    startBtn.classList.add('hidden');
+                    canvas.classList.remove('hidden');
+                    tryInitialize();
+                } catch (error) {
+                    console.error('Failed to handle start button click:', error);
+                }
             });
         } else {
             console.error('Required game elements not found');
+        }
+        
+        if (clockElement) {
+            clockElement.addEventListener('click', (event) => {
+                try {
+                    event.preventDefault();
+                    const now = new Date();
+                    clockElement.textContent = now.toLocaleTimeString();
+                } catch (error) {
+                    console.error('Failed to update clock:', error);
+                }
+            });
         }
     } catch (error) {
         console.error('Failed to initialize game:', error);
@@ -223,7 +241,17 @@ function initializeOnLoad() {
 
 // Add event listener with error handling
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeOnLoad);
+    document.addEventListener('DOMContentLoaded', (event) => {
+        try {
+            initializeOnLoad();
+        } catch (error) {
+            console.error('Failed to initialize on DOM content loaded:', error);
+        }
+    });
 } else {
-    initializeOnLoad();
+    try {
+        initializeOnLoad();
+    } catch (error) {
+        console.error('Failed to initialize:', error);
+    }
 }
