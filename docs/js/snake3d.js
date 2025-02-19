@@ -17,36 +17,15 @@ class Snake3D {
         this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
         this.scene.add(this.hyperbolicGrid);
         
-        // Initialize snake segments with cheese textures
+        // Initialize properties
         this.segments = [];
         this.snakeGeometry = new THREE.BoxGeometry(1, 1, 0.2);
         this.cheeseLoader = new CheeseTextureLoader();
-        
-        // Create materials for different segments
-        this.headMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9,
-            map: await this.cheeseLoader.loadTexture('swiss')
-        });
-        
-        this.bodyMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9,
-            map: await this.cheeseLoader.loadTexture('cheddar')
-        });
-        
-        this.tailMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9,
-            map: await this.cheeseLoader.loadTexture('gouda')
-        });
-        
-        // Camera position in hyperbolic space
-        this.camera.position.set(0, 15, 15);
-        this.camera.lookAt(0, 0, 0);
+        this.headMaterial = null;
+        this.bodyMaterial = null;
+        this.tailMaterial = null;
+        this.foodMaterial = null;
+        this.food = null;
         
         // Game state
         this.score = 0;
@@ -59,18 +38,53 @@ class Snake3D {
         this.direction = new THREE.Vector3(1, 0, 0);
         this.position = new THREE.Vector3(0, 0, 0);
         this.speed = 0.1;
-        this.currentRotation = 0;
         
-        // Initialize food with special cheese texture
-        this.foodMaterial = new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            transparent: true,
-            opacity: 0.9,
-            map: await this.cheeseLoader.loadTexture('cheezus')
-        });
+        // Camera position in hyperbolic space
+        this.camera.position.set(0, 15, 15);
+        this.camera.lookAt(0, 0, 0);
         
-        // Start animation loop
-        this.animate();
+        // Initialize game
+        this.init().catch(console.error);
+    }
+    
+    async init() {
+        try {
+            // Load textures
+            this.headMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                map: await this.cheeseLoader.loadTexture('swiss')
+            });
+            
+            this.bodyMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                map: await this.cheeseLoader.loadTexture('cheddar')
+            });
+            
+            this.tailMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                map: await this.cheeseLoader.loadTexture('gouda')
+            });
+            
+            this.foodMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9,
+                map: await this.cheeseLoader.loadTexture('cheezus')
+            });
+            
+            // Start game
+            this.spawnFood();
+            this.animate();
+        } catch (error) {
+            console.error('Failed to initialize game:', error);
+        }
+    }
     }
     
     // Create a new segment with the appropriate cheese texture and rotation
