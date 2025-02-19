@@ -16,9 +16,9 @@ end
 
 function BattlePass:initializeRewards()
     return {
-        [10] = { type = "skin", name = "Golden Snake", unlocked = false },
-        [25] = { type = "currency", amount = 1000, name = "Bussy Tokens", unlocked = false },
-        [50] = { type = "skin", name = "Rainbow Trail", unlocked = false },
+        [10] = { type = "workout", name = "Prime's Beginner Routine", unlocked = false },
+        [25] = { type = "workout", name = "ThePrimeagen's Core Workout", unlocked = false },
+        [50] = { type = "workout", name = "Prime's Advanced Circuit", unlocked = false },
         [75] = { type = "currency", amount = 5000, name = "UwU Currency", unlocked = false },
         [100] = { type = "skin", name = "Legendary Dragon", unlocked = false }
     }
