@@ -11,6 +11,20 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Bitcoin Price Update
+        async function updateBitcoinPrice() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const data = await response.json();
+                const price = data.bitcoin.usd.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+                document.getElementById('bitcoin-price').textContent = price;
+            } catch (error) {
+                console.error('Failed to fetch Bitcoin price:', error);
+            }
+            setTimeout(updateBitcoinPrice, 60000); // Update every minute
+        }
+        updateBitcoinPrice();
+
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -127,13 +141,43 @@
                         class="rounded-lg"
                     ></iframe>
                 </div>
+                <!-- Snake Speedrun Video -->
+                <div class="w-96 h-48 flex items-center justify-center bg-dark-bg rounded-lg game-border">
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        src="https://www.youtube.com/embed/jMsuQLm3_ck?autoplay=1&mute=1" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen
+                        class="rounded-lg"
+                    ></iframe>
+                </div>
                 <!-- Brainfuck Code Display -->
                 <div class="w-96 p-4 bg-dark-bg rounded-lg game-border">
                     <h3 class="text-xl font-bold mb-2 text-white">Main Event Loop in Brainfuck</h3>
-                    <pre class="font-mono text-xs text-green-400 overflow-x-auto">+++++[-&gt;+++++[-&gt;+++++&lt;]&gt;+++++&lt;]&gt;+++++.</pre>
+                    <pre class="font-mono text-xs text-green-400 overflow-x-auto">+++++[-&gt;+++++[-&gt;+++++&lt;]&gt;+++++&lt;]&gt;+++++.[-]&gt;[-]&gt;[-]+++[-&gt;+++&lt;]&gt;++.[-]&gt;[-]&gt;[-]+++[-&gt;+++&lt;]&gt;++.[-]&gt;[-]&gt;[-]+++[-&gt;+++&lt;]&gt;++.[-]&gt;[-]&gt;[-]+++[-&gt;+++&lt;]&gt;++.[-]&gt;[-]&gt;[-]+++[-&gt;+++&lt;]&gt;++.</pre>
                 </div>
             </div>
             
+            <!-- Bitcoin Price Tracker (labeled as Netflix Stock Price) -->
+            <div class="w-96 p-4 bg-dark-bg rounded-lg game-border mb-4">
+                <h3 class="text-xl font-bold mb-2 text-white">Netflix Stock Price</h3>
+                <div id="bitcoin-price" class="font-mono text-2xl text-green-400">Loading...</div>
+            </div>
+
+            <!-- 90's Style Visitor Counter -->
+            <div class="w-96 p-4 bg-dark-bg rounded-lg game-border mb-4 flex items-center justify-center">
+                <div class="bg-black p-2 rounded border-2 border-gray-600">
+                    <div class="text-center mb-1">
+                        <span class="text-yellow-400 text-xs font-bold">VISITORS</span>
+                    </div>
+                    <div class="font-digital text-red-500 text-2xl font-bold tracking-wider" style="font-family: 'Digital', monospace;">
+                        000001337
+                    </div>
+                </div>
+            </div>
+
             <!-- 3D Game Canvas -->
             <div class="relative">
                 <div id="clock" class="absolute top-2 right-2 text-xl font-mono cursor-pointer hover:text-purple-500 transition-colors"></div>
