@@ -63,11 +63,6 @@
         .animate-flashy {
             animation: flashy 0.5s infinite;
         }
-                        window.game.gems -= SPEED_BOOST_COST;
-                        window.game.speedBoostActive = true;
-                        window.game.speed = Math.max(0.05, window.game.speed - 0.03);
-                        updateStoreButtons();
-                    }
                 });
                 
                 doublePointsBtn.addEventListener('click', () => {
@@ -77,15 +72,7 @@
                         updateStoreButtons();
                     }
                 });
-                
-                // Event listeners
-                document.addEventListener('keydown', (e) => {
-                    window.game.handleInput(e.key.toLowerCase());
     </style>
-                message.classList.add('text-red-500', 'text-xl', 'font-bold');
-                overlay.querySelector('.text-center').prepend(message);
-                overlay.classList.remove('hidden');
-            }
         }
         
         // Setup store functionality
