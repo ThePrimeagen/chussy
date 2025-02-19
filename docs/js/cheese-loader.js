@@ -17,7 +17,7 @@ class CheeseTextureLoader {
         } catch (error) {
             console.warn(`Failed to load texture ${name}, using fallback`, error);
             return null;
-    }
+        }
 
     svgToCanvas(svgData) {
         try {
@@ -42,5 +42,5 @@ class CheeseTextureLoader {
         } catch (error) {
             console.warn('Failed to create texture canvas, using fallback', error);
             return null;
-    }
+        }
 }
