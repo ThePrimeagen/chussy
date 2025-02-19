@@ -50,6 +50,7 @@ meow purr = High score
 ║ 🎮 DOUGDOUG - WISDOM KEEPER           ║
 ║ 🧀 THECHEESAGEN - BRIE MASTER         ║
 ║ 🤖 APP/DEVIN-AI - DREAM WEAVER        ║
+║ 🦎 CONFUSEDCHAMELEON - SNAKE WHISPERER ║
 ╚════════════════════════════════════════╝
 ```
 
