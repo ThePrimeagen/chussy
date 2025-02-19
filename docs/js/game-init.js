@@ -98,16 +98,41 @@ const DOUBLE_POINTS_COST = 200;
 const DIRECTION_CHANGE_DELAY = 50;
 
 // Initialize game when all scripts are loaded
-window.addEventListener('load', async () => {
+window.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Wait for all scripts to load
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         if (typeof Snake3D === 'undefined') {
-            console.error('Snake3D not loaded. Please check script loading order.');
-            return;
+            throw new Error('Snake3D not loaded. Please check script loading order.');
         }
+        
         await initGame();
         
         // Update store buttons after initialization
-        updateStoreButtons();
+        const speedBoostBtn = document.getElementById('speedBoostBtn');
+        const doublePointsBtn = document.getElementById('doublePointsBtn');
+        
+        if (speedBoostBtn && doublePointsBtn) {
+            updateStoreButtons();
+            
+            speedBoostBtn.addEventListener('click', () => {
+                if (window.game && window.game.gems >= SPEED_BOOST_COST && !window.game.speedBoostActive) {
+                    window.game.gems -= SPEED_BOOST_COST;
+                    window.game.speedBoostActive = true;
+                    window.game.speed = Math.max(0.05, window.game.speed - 0.03);
+                    updateStoreButtons();
+                }
+            });
+            
+            doublePointsBtn.addEventListener('click', () => {
+                if (window.game && window.game.gems >= DOUBLE_POINTS_COST && window.game.pointMultiplier === 1) {
+                    window.game.gems -= DOUBLE_POINTS_COST;
+                    window.game.pointMultiplier = 2;
+                    updateStoreButtons();
+                }
+            });
+        }
     } catch (error) {
         console.error('Failed to initialize game:', error);
         const overlay = document.getElementById('overlay');
@@ -115,8 +140,11 @@ window.addEventListener('load', async () => {
             const message = document.createElement('div');
             message.textContent = 'Failed to load game. Please refresh the page.';
             message.classList.add('text-red-500', 'text-xl', 'font-bold');
-            overlay.querySelector('.text-center')?.prepend(message);
-            overlay.classList.remove('hidden');
+            const center = overlay.querySelector('.text-center');
+            if (center) {
+                center.prepend(message);
+                overlay.classList.remove('hidden');
+            }
         }
     }
 });
