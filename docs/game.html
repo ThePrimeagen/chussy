@@ -55,11 +55,14 @@
     <script defer src="auto_refresh.js"></script>
     <script defer src="ml_button.js"></script>
     <style>
-            try {
-                // Get canvas element
-                const canvas = document.getElementById('gameCanvas');
-                
-                // Initialize 3D game
+        @keyframes flashy {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .animate-flashy {
+            animation: flashy 0.5s infinite;
+        }
                 window.game = new Snake3D(canvas);
                 await window.game.init();
                 
@@ -104,15 +107,7 @@
                     localStorage.setItem('theme', isDark ? 'dark' : 'light');
                 });
                 
-                // Update UI
-                function updateUI() {
-                    document.getElementById('score').textContent = window.game.score;
-                    document.getElementById('level').textContent = window.game.level;
     </style>
-                const canvas = document.getElementById('gameCanvas');
-                
-                // Initialize 3D game
-                window.game = new Snake3D(canvas);
                 await window.game.init();
                 
                 // Setup store functionality
