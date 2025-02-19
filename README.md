@@ -54,8 +54,7 @@ meow purr = High score
 ╚════════════════════════════════════════╝
 ```
 
-[ENGLISH](README.md) | [简体中文](README.zh-CN.md)
-[ENGLISH](README.md) | [日本語](README.ja.md)
+[ENGLISH](README.md)
 
 ```
                     ____________________
