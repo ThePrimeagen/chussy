@@ -38,6 +38,7 @@ class Snake3D {
         this.direction = new THREE.Vector3(1, 0, 0);
         this.position = new THREE.Vector3(0, 0, 0);
         this.speed = 0.1;
+        this.yRotation = 0;
         
         // Camera position in hyperbolic space
         this.camera.position.set(0, 15, 15);
@@ -84,7 +85,6 @@ class Snake3D {
         } catch (error) {
             console.error('Failed to initialize game:', error);
         }
-    }
     }
     
     // Create a new segment with the appropriate cheese texture and rotation
@@ -212,21 +212,6 @@ class Snake3D {
         );
     }
 
-    // Update snake rotation based on direction
-    updateRotation() {
-        let targetRotation = 0;
-        if (this.direction.z < 0) { // UP
-            targetRotation = -Math.PI / 2;
-        } else if (this.direction.z > 0) { // DOWN
-            targetRotation = Math.PI / 2;
-        } else if (this.direction.x < 0) { // LEFT
-            targetRotation = Math.PI;
-        }
-        
-        // Smoothly interpolate rotation
-        this.currentRotation += (targetRotation - this.currentRotation) * 0.2;
-    }
-
     update() {
         // Update snake position
         this.position.add(this.direction.multiplyScalar(this.speed));
@@ -268,27 +253,40 @@ class Snake3D {
     }
     
     handleInput(key) {
+        const dir = new THREE.Vector3();
+        dir.copy(this.direction);
+        
         switch(key) {
             case 'arrowup':
             case 'w':
             case 'k':
-                this.direction.set(0, 0, -1);
+                dir.z = -1;
                 break;
             case 'arrowdown':
             case 's':
             case 'j':
-                this.direction.set(0, 0, 1);
+                dir.z = 1;
                 break;
             case 'arrowleft':
             case 'a':
             case 'h':
-                this.direction.set(-1, 0, 0);
+                dir.x = -1;
                 break;
             case 'arrowright':
             case 'd':
             case 'l':
-                this.direction.set(1, 0, 0);
+                dir.x = 1;
+                break;
+            case 'q': // Roll left
+                this.yRotation -= Math.PI / 2;
+                break;
+            case 'e': // Roll right
+                this.yRotation += Math.PI / 2;
                 break;
         }
+        
+        // Apply rotation
+        dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yRotation);
+        this.direction.copy(dir.normalize());
     }
 }
