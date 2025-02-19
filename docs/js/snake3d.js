@@ -1,4 +1,4 @@
-// 3D Snake Game Implementation
+// 3D Snake Game Implementation with Hyperbolic Geometry
 class Snake3D {
     constructor(canvas) {
         this.scene = new THREE.Scene();
@@ -11,16 +11,22 @@ class Snake3D {
         directionalLight.position.set(5, 5, 5);
         this.scene.add(ambientLight, directionalLight);
         
-        // Setup grid for reference
-        const gridHelper = new THREE.GridHelper(20, 20);
-        this.scene.add(gridHelper);
+        // Setup hyperbolic grid
+        const gridGeometry = new THREE.TorusGeometry(10, 0.1, 16, 100);
+        const gridMaterial = new THREE.MeshBasicMaterial({ color: 0x444444 });
+        this.hyperbolicGrid = new THREE.Mesh(gridGeometry, gridMaterial);
+        this.scene.add(this.hyperbolicGrid);
         
-        // Initialize snake segments
+        // Initialize snake segments with ASCII characters
         this.segments = [];
-        this.snakeGeometry = new THREE.BoxGeometry(1, 1, 1);
-        this.snakeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        this.snakeGeometry = new THREE.BoxGeometry(1, 1, 0.2);
+        this.snakeMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x9333ea,
+            transparent: true,
+            opacity: 0.9
+        });
         
-        // Camera position
+        // Camera position in hyperbolic space
         this.camera.position.set(0, 15, 15);
         this.camera.lookAt(0, 0, 0);
         
@@ -28,9 +34,32 @@ class Snake3D {
         this.direction = new THREE.Vector3(1, 0, 0);
         this.position = new THREE.Vector3(0, 0, 0);
         this.speed = 0.1;
+        this.currentRotation = 0;
+        
+        // Create text textures for snake segments
+        this.headTexture = this.createTextTexture('D');
+        this.bodyTexture = this.createTextTexture('=');
+        this.tailTexture = this.createTextTexture('8');
         
         // Start animation loop
         this.animate();
+    }
+    
+    // Create texture with ASCII character
+    createTextTexture(char) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'white';
+        ctx.font = '48px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(char, 32, 32);
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.needsUpdate = true;
+        return texture;
     }
     
     animate() {
@@ -39,21 +68,75 @@ class Snake3D {
         this.renderer.render(this.scene, this.camera);
     }
     
+    // Apply hyperbolic transformation
+    applyHyperbolicTransform(position) {
+        const r = Math.sqrt(position.x * position.x + position.z * position.z);
+        const scale = 2.0 / (1.0 + r * r);
+        return new THREE.Vector3(
+            position.x * scale,
+            position.y,
+            position.z * scale
+        );
+    }
+
+    // Update snake rotation based on direction
+    updateRotation() {
+        let targetRotation = 0;
+        if (this.direction.z < 0) { // UP
+            targetRotation = -Math.PI / 2;
+        } else if (this.direction.z > 0) { // DOWN
+            targetRotation = Math.PI / 2;
+        } else if (this.direction.x < 0) { // LEFT
+            targetRotation = Math.PI;
+        }
+        
+        // Smoothly interpolate rotation
+        this.currentRotation += (targetRotation - this.currentRotation) * 0.2;
+    }
+
     update() {
         // Update snake position
         this.position.add(this.direction.multiplyScalar(this.speed));
+        const hyperbolicPos = this.applyHyperbolicTransform(this.position);
+        
+        // Update rotations
+        this.updateRotation();
         
         // Update snake segments
         if (this.segments.length === 0) {
-            const segment = new THREE.Mesh(this.snakeGeometry, this.snakeMaterial);
-            segment.position.copy(this.position);
+            const segment = new THREE.Mesh(this.snakeGeometry, this.snakeMaterial.clone());
+            segment.material.map = this.headTexture;
+            segment.position.copy(hyperbolicPos);
+            segment.rotation.z = this.currentRotation;
             this.segments.push(segment);
             this.scene.add(segment);
         } else {
+            // Update positions with hyperbolic transform
             for (let i = this.segments.length - 1; i > 0; i--) {
-                this.segments[i].position.copy(this.segments[i-1].position);
+                const pos = this.segments[i-1].position.clone();
+                const hyperbolicPos = this.applyHyperbolicTransform(pos);
+                this.segments[i].position.copy(hyperbolicPos);
+                
+                // Update segment textures and rotations
+                const material = this.segments[i].material;
+                if (i === this.segments.length - 1) {
+                    material.map = this.tailTexture;
+                } else {
+                    material.map = this.bodyTexture;
+                }
+                material.needsUpdate = true;
             }
-            this.segments[0].position.copy(this.position);
+            
+            // Update head position and rotation
+            this.segments[0].position.copy(hyperbolicPos);
+            this.segments[0].rotation.z = this.currentRotation;
+            this.segments[0].material.map = this.headTexture;
+            this.segments[0].material.needsUpdate = true;
+        }
+        
+        // Update hyperbolic grid rotation for visual effect
+        if (this.hyperbolicGrid) {
+            this.hyperbolicGrid.rotation.y += 0.001;
         }
     }
     
