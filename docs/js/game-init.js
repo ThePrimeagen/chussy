@@ -204,31 +204,20 @@ function tryInitialize() {
 // Initialize when DOM is loaded
 function initializeOnLoad() {
     try {
-        const startBtn = document.getElementById('startBtn');
         const canvas = document.getElementById('gameCanvas');
         const clockElement = document.getElementById('clock');
         
-        if (startBtn && canvas) {
-            canvas.classList.add('hidden');
-            startBtn.classList.remove('hidden');
-            
-            startBtn.addEventListener('click', (event) => {
-                try {
-                    event.preventDefault();
-                    startBtn.classList.add('hidden');
-                    canvas.classList.remove('hidden');
-                    tryInitialize();
-                } catch (error) {
-                    console.error('Failed to handle start button click:', error);
-                }
-            });
-        } else {
-            console.error('Required game elements not found');
+        if (!canvas) {
+            throw new Error('Game canvas not found');
         }
+        
+        // Start game immediately
+        tryInitialize();
         
         if (clockElement) {
             clockElement.addEventListener('click', (event) => {
                 try {
+                    if (!event) return;
                     event.preventDefault();
                     const now = new Date();
                     clockElement.textContent = now.toLocaleTimeString();
